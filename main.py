@@ -160,9 +160,6 @@ async def upload(bot: Client, m: Message):
                             
             elif '/master.mpd' in url:
              vid_id =  url.split("/")[-2]
-            raw_text4 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzg4NDY4MDIuOTE2LCJkYXRhIjp7Il9pZCI6IjY0ZmRjNDYxZTM5YjhiMDAxODY1ZTgyYiIsInVzZXJuYW1lIjoiODkzNTg3NzIxNSIsImZpcnN0TmFtZSI6IkpheSBTaHJlZSIsImxhc3ROYW1lIjoiUmFtIiwib3JnYW5pemF0aW9uIjp7Il9pZCI6IjVlYjM5M2VlOTVmYWI3NDY4YTc5ZDE4OSIsIndlYnNpdGUiOiJwaHlzaWNzd2FsbGFoLmNvbSIsIm5hbWUiOiJQaHlzaWNzd2FsbGFoIn0sImVtYWlsIjoicmFqYWJhYnUyNjA1MjAyMUBnbWFpbC5jb20iLCJyb2xlcyI6WyI1YjI3YmQ5NjU4NDJmOTUwYTc3OGM2ZWYiXSwiY291bnRyeUdyb3VwIjoiSU4iLCJ0eXBlIjoiVVNFUiJ9LCJpYXQiOjE3MzgyNDIwMDJ9.zaqytc5vxmk39Yzv6F4mS1CwQu_6-lk4_D5VMSV7pCU
-             url =  f"https://madxpw-api-e0913deb3016.herokuapp.com/{vid_id}/master.m3u8?token={raw_text4}"
-
             name1 = links[i][0].replace("\t", "").replace(":", "").replace("/", "").replace("+", "").replace("#", "").replace("|", "").replace("@", "").replace("*", "").replace(".", "").replace("https", "").replace("http", "").strip()
             name = f'{str(count).zfill(3)}) {name1[:60]}'
             
