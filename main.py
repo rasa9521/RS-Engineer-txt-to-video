@@ -110,9 +110,9 @@ async def upload(bot: Client, m: Message):
     await input3.delete(True)
     highlighter  = f"️ ⁪⁬⁮⁮⁮"
     if raw_text3 == 'Robin':
-        MR = highlighter 
+        MPH = highlighter 
     else:
-        MR = raw_text3
+        MPH = raw_text3
     await editable.edit("**Enter Your PW Token For 𝐌𝐏𝐃 𝐔𝐑𝐋  or send 'unknown' for use default**")
     input4: Message = await bot.listen(editable.chat.id)
     raw_text4 = input4.text
@@ -247,8 +247,8 @@ async def upload(bot: Client, m: Message):
 
             try:  
                 
-                cc = f'**{str(count).zfill(3)}. {name1}.mkv\n\nBatch Name  » {raw_text0}\n\nDownloaded By » {MR}**'
-                cc1 = f'**{str(count).zfill(3)}. {name1}.pdf\n\nBatch Name  » {raw_text0}\n\nDownloaded By » {MR}**'
+                cc = f'**{str(count).zfill(3)}. {name1}.mkv\n\nBatch Name  » {raw_text0}\n\nDownloaded By » {MPH}**'
+                cc1 = f'**{str(count).zfill(3)}. {name1}.pdf\n\nBatch Name  » {raw_text0}\n\nDownloaded By » {MPH}**'
                 if "drive" in url:
                     try:
                         ka = await helper.download(url, name)
