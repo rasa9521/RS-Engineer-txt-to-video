@@ -30,9 +30,78 @@ bot = Client(
     bot_token=BOT_TOKEN)
 
 
+# Inline keyboard for start command
+keyboard = InlineKeyboardMarkup(
+    [
+        [
+            InlineKeyboardButton(text="📞 Contact", url="https://t.me/Engineers_Babu"),
+            InlineKeyboardButton(text="🛠️ Help", url="https://t.me/Engineers_Babu"),
+        ],
+        [
+            InlineKeyboardButton(text="🪄 Updates Channel", url="https://t.me/Engineersbabuupdates"),
+        ],
+    ]
+)
+
+# Inline keyboard for busy status
+Busy = InlineKeyboardMarkup(
+    [
+        [
+            InlineKeyboardButton(text="📞 Contact", url="https://t.me/Engineers_Babu"),
+            InlineKeyboardButton(text="🛠️ Help", url="https://t.me/Engineers_Babu"),
+        ],
+        [
+            InlineKeyboardButton(text="🪄 Updates Channel", url="https://t.me/Engineersbabuupdates"),
+        ],
+    ]
+)
+
+# Image URLs for the random image feature
+image_urls = [
+    "https://ibb.co/K3NCpqt",
+    "https://ibb.co/9m4s1NGM",
+    "https://ibb.co/5Wk1mXJD",
+    "https://ibb.co/MxSYjjvp",
+    "https://ibb.co/FbVV8q92",
+    "https://ibb.co/RmpzmKz",
+    "https://ibb.co/vxftSBq8",
+    "https://ibb.co/rKNY2m5L"
+    # Add more image URLs as needed
+]
+
+# Start command handler
 @bot.on_message(filters.command(["start"]))
-async def start(bot: Client, m: Message):
-    await m.reply_text(f"<b>🌟 Welcome {0}! 🌟 {m.from_user.mention} 👋\n\n I Am A Engineers Babu Bot For Download Links From Your **.TXT** File And Then Upload That File On Telegram So Basically If You Want To Use Me First Send Me /upload Command And Then Follow Few Steps..\n\nUse /stop to stop any ongoing task.</b>")
+async def start_command(bot: Client, message: Message):
+    # Send a loading message
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="Loading... ⏳🔄"
+    )
+  
+    # Choose a random image URL
+    random_image_url = random.choice(image_urls)
+    
+    # Caption for the image
+    caption = (
+        "**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!**\n\n"
+        "➠ **𝐈 𝐚𝐦 𝐚 𝐓𝐞𝐱𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐫 𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐖𝐢𝐭𝐡 ♥️**\n"
+        "➠ **Can Extract Videos & PDFs From Your Text File and Upload to Telegram!**\n"
+        "➠ **For Guide Use Command /guide 📖**\n\n"
+        "➠ **Use /Upload Command to Download From TXT File** 📄\n\n"
+        "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @Engineers_Babu"
+    )
+
+    # Send the image with caption and buttons
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=random_image_url,
+        caption=caption,
+        reply_markup=keyboard
+    )
+
+    # Delete the loading message
+    await loading_message.delete()
+
 
 
 @bot.on_message(filters.command("stop"))
