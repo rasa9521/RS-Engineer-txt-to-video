@@ -32,7 +32,7 @@ bot = Client(
 
 @bot.on_message(filters.command(["start"]))
 async def start(bot: Client, m: Message):
-    await m.reply_text(f"<b>Hello {m.from_user.mention} 👋\n\n I Am A Engineers Babu Bot For Download Links From Your **.TXT** File And Then Upload That File On Telegram So Basically If You Want To Use Me First Send Me /upload Command And Then Follow Few Steps..\n\nUse /stop to stop any ongoing task.</b>")
+    await m.reply_text(f"<b>🌟 Welcome {0}! 🌟 {m.from_user.mention} 👋\n\n I Am A Engineers Babu Bot For Download Links From Your **.TXT** File And Then Upload That File On Telegram So Basically If You Want To Use Me First Send Me /upload Command And Then Follow Few Steps..\n\nUse /stop to stop any ongoing task.</b>")
 
 
 @bot.on_message(filters.command("stop"))
@@ -244,8 +244,8 @@ async def upload(bot: Client, m: Message):
 
             try:  
                 
-                cc = f'**{str(count).zfill(3)}. {name1}.mkv\n\nBatch Name  » {raw_text0}{MPH}\n\nDownloaded By » {MPH}**'
-                cc1 = f'**{str(count).zfill(3)}. {name1}.pdf\n\nBatch Name  » {raw_text0}{MPH}\n\nDownloaded By » {MPH}**'
+                cc = f'**{str(count).zfill(3)}. {name1}.mkv\n\n📚 Batch Name  » {raw_text0}{MPH}\n\nDownloaded By » {MPH}**'
+                cc1 = f'**{str(count).zfill(3)}. {name1}.pdf\n\nBatch Name  » {raw_text0}{MPH}\n\nDownloaded By » {MPH}**\n\n**━━━━━✦❤️ENGINEER BABU❤️✦━━━━━**''
                 if "drive" in url:
                     try:
                         ka = await helper.download(url, name)
