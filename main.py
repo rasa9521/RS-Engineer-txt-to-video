@@ -31,6 +31,43 @@ bot = Client(
 
 
 # Inline keyboard for start command
+# Start command handler
+@bot.on_message(filters.command(["start"]))
+async def start_command(bot: Client, message: Message):
+    # Send a loading message
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="Loading... ⏳🔄"
+    )
+    # Image URLs for the random image feature
+image_urls = [
+    "https://ibb.co/K3NCpqt",
+    "https://ibb.co/9m4s1NGM",
+    "https://ibb.co/5Wk1mXJD",
+    "https://ibb.co/MxSYjjvp",
+    "https://ibb.co/FbVV8q92",
+    "https://ibb.co/RmpzmKz",
+    "https://ibb.co/vxftSBq8",
+    "https://ibb.co/rKNY2m5L"
+    # Add more image URLs as needed
+]
+
+
+
+
+  
+    # Choose a random image URL
+    random_image_url = random.choice(image_urls)
+    
+    # Caption for the image
+    caption = (
+        "**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!**\n\n"
+        "➠ **𝐈 𝐚𝐦 𝐚 𝐓𝐞𝐱𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐫 𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐖𝐢𝐭𝐡 ♥️**\n"
+        "➠ **Can Extract Videos & PDFs From Your Text File and Upload to Telegram!**\n"
+        "➠ **For Guide Use Command /guide 📖**\n\n"
+        "➠ **Use /Upload Command to Download From TXT File** 📄\n\n"
+        "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @Engineers_Babu"
+    )
 keyboard = InlineKeyboardMarkup(
     [
         [
@@ -56,40 +93,6 @@ Busy = InlineKeyboardMarkup(
     ]
 )
 
-# Image URLs for the random image feature
-image_urls = [
-    "https://ibb.co/K3NCpqt",
-    "https://ibb.co/9m4s1NGM",
-    "https://ibb.co/5Wk1mXJD",
-    "https://ibb.co/MxSYjjvp",
-    "https://ibb.co/FbVV8q92",
-    "https://ibb.co/RmpzmKz",
-    "https://ibb.co/vxftSBq8",
-    "https://ibb.co/rKNY2m5L"
-    # Add more image URLs as needed
-]
-
-# Start command handler
-@bot.on_message(filters.command(["start"]))
-async def start_command(bot: Client, message: Message):
-    # Send a loading message
-    loading_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text="Loading... ⏳🔄"
-    )
-  
-    # Choose a random image URL
-    random_image_url = random.choice(image_urls)
-    
-    # Caption for the image
-    caption = (
-        "**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!**\n\n"
-        "➠ **𝐈 𝐚𝐦 𝐚 𝐓𝐞𝐱𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐫 𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐖𝐢𝐭𝐡 ♥️**\n"
-        "➠ **Can Extract Videos & PDFs From Your Text File and Upload to Telegram!**\n"
-        "➠ **For Guide Use Command /guide 📖**\n\n"
-        "➠ **Use /Upload Command to Download From TXT File** 📄\n\n"
-        "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @Engineers_Babu"
-    )
 
     # Send the image with caption and buttons
     await bot.send_photo(
