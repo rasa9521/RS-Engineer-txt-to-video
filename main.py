@@ -119,7 +119,7 @@ async def upload(bot: Client, m: Message):
     #else:
         #MR = raw_text4
    
-    await editable.edit("Now send the Thumb url/nEg. » https://files.oaiusercontent.com/file-VfKi3o7ucDCg2qLSnXuZZH?se=2025-02-02T19%3A23%3A51Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Ddbfe1d72-d6ff-445b-a47a-c7c71e18b330.webp&sig=CjJYANnFE8hsyUvEZXPvCxJ6NxZNye10DFQtWvg/dUY%3D \n Or if don't want thumbnail send = no")
+    await editable.edit("Now send the Thumb URL /n Eg. » https://ibb.co/6LH1cqY \n Or if don't want thumbnail send = no")
     input6 = message = await bot.listen(editable.chat.id)
     raw_text6 = input6.text
     await input6.delete(True)
@@ -244,7 +244,7 @@ async def upload(bot: Client, m: Message):
 
             try:  
                 
-                cc = f'**🎞️ VID_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.mkv\n\n📚 Batch Name  » {raw_text0}\n\n📥 Downloaded By » {MPH}**\n\n**"╰─═══ ✪ Engineers_Babu ✪ ═══─╯**'
+                cc = f'**🎞️ VID_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.mkv\n\n📚 Batch Name  » {raw_text0}\n\n📥 Downloaded By » {MPH}**\n\n**╰─═══ ✪ Engineer's Babu ✪ ═══─╯**'
                 cc1 = f'**📁 PDF_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.pdf\n\n📚 Batch Name  » {raw_text0}\n\n📥 Downloaded By » {MPH}**\n\n**╰─═══ ✪ Engineers_Babu ✪ ═══─╯**'
                 if "drive" in url:
                     try:
