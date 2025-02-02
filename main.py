@@ -39,7 +39,7 @@ async def start(bot: Client, m: Message):
     
     # Send the image with the caption
     with open(image_path, 'rb') as photo:
-        await m.reply_text_photo(photo=photo, caption=caption_text)
+        await m.send_photo(photo=image_path, caption=caption_text)
 
 
 @bot.on_message(filters.command("stop"))
