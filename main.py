@@ -119,7 +119,7 @@ async def upload(bot: Client, m: Message):
     #else:
         #MR = raw_text4
    
-    await editable.edit("Now send the Thumb url/nEg »  \n Or if don't want thumbnail send = no")
+    await editable.edit("Now send the Thumb url/nEg » https://media.istockphoto.com/id/503874284/photo/berlin-skyline-with-spree-river-at-sunset-germany.jpg?s=1024x1024&w=is&k=20&c=tDWGKjtGWIqbO1d096rPS8A8DIhQfcpdQbTQgxPKZ-Q= \n Or if don't want thumbnail send = no")
     input6 = message = await bot.listen(editable.chat.id)
     raw_text6 = input6.text
     await input6.delete(True)
@@ -244,8 +244,8 @@ async def upload(bot: Client, m: Message):
 
             try:  
                 
-                cc = f'**{str(count).zfill(3)}. {name1}.mkv\n\nBatch Name  » {raw_text0}\n\nDownloaded By » {MPH}**'
-                cc1 = f'**{str(count).zfill(3)}. {name1}.pdf\n\nBatch Name  » {raw_text0}\n\nDownloaded By » {MPH}**'
+                cc = f'**{str(count).zfill(3)}. {name1}.mkv\n\nBatch Name  » {raw_text0}{MPH}\n\nDownloaded By » {MPH}**'
+                cc1 = f'**{str(count).zfill(3)}. {name1}.pdf\n\nBatch Name  » {raw_text0}{MPH}\n\nDownloaded By » {MPH}**'
                 if "drive" in url:
                     try:
                         ka = await helper.download(url, name)
