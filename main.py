@@ -30,7 +30,7 @@ bot = Client(
     bot_token=BOT_TOKEN)
 
 @bot.on_message(filters.command(["start"]))
-async start(bot: Client, m: Message):
+async def start(bot: Client, m: Message):
     # Path to the image you want to send
     image_path = 'https://ibb.co/K3NCpqt'
     
