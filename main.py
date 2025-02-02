@@ -244,8 +244,8 @@ async def upload(bot: Client, m: Message):
 
             try:  
                 
-                cc = f'**🎞️ VID_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.mkv\n\n📚 Batch Name  » {raw_text0}\n\n📥 Downloaded By » {MPH}**\n\n**╰─═══ ✪ Engineers Babu ✪ ═══─╯**'
-                cc1 = f'**📁 PDF_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.pdf\n\n📚 Batch Name  » {raw_text0}\n\n📥 Downloaded By » {MPH}**\n\n**╰─═══ ✪ Engineers Babu ✪ ═══─╯**'
+                cc = f'**🎞️ VID_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.mkv\n\n📚 Batch Name  » {raw_text0}\n\n📥 Downloaded By » {MPH}**\n\n**◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦**'
+                cc1 = f'**📁 PDF_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.pdf\n\n📚 Batch Name  » {raw_text0}\n\n📥 Downloaded By » {MPH}**\n\n**◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦**'
                 if "drive" in url:
                     try:
                         ka = await helper.download(url, name)
@@ -271,7 +271,7 @@ async def upload(bot: Client, m: Message):
                         time.sleep(e.x)
                         continue
                 else:
-                    Show = f"**⥥ 🄳🄾🅆🄽🄻🄾🄰🄳🄸🄽🄶⬇️⬇️... »**\n\n**📝Name »** `{name}\n❄Quality » {raw_text2}`\n\n**🔗URL »** `[Hidden]`"
+                    Show = f"**⥥ 🄳🄾🅆🄽🄻🄾🄰🄳🄸🄽🄶⬇️⬇️... »**\n\n**📝Name »** `{name}\n\n❄Quality » {raw_text2}`\n\n**🔗URL »** `[Hidden]`"
                     prog = await m.reply_text(Show)
                     res_file = await helper.download_video(url, cmd, name)
                     filename = res_file
