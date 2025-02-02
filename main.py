@@ -29,8 +29,8 @@ bot = Client(
     api_hash=API_HASH,
     bot_token=BOT_TOKEN)
 
-
-def start(update: Update, context: CallbackContext) -> None:
+@bot.on_message(filters.command(["start"]))
+async start(bot: Client, m: Message):
     # Path to the image you want to send
     image_path = 'https://ibb.co/K3NCpqt'
     
@@ -39,7 +39,7 @@ def start(update: Update, context: CallbackContext) -> None:
     
     # Send the image with the caption
     with open(image_path, 'rb') as photo:
-        update.message.reply_photo(photo=photo, caption=caption_text)
+        await m.reply_text_photo(photo=photo, caption=caption_text)
 
 
 @bot.on_message(filters.command("stop"))
