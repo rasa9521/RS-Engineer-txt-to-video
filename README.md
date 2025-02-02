@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://ibb.co/6LH1cqY" alt="VJ-TXT-LEECH-BOT Logo">
+  <img src="[url=https://ibb.co/6LH1cqY][img]https://i.ibb.co/6LH1cqY/DALL-E-2025-02-03-00-58-09-The-text-Engineer-s-Babu-written-in-bold-edgy-cyberpunk-style-across-the.webp[/img][/url]" alt=" ミ★ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ★彡 Logo">
 </p>
 <h1 align="center">
-  VJ TXT LEECH BOT
+  ミ★ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ★彡
 </h1>
 
 ## Deploy Tutorial - [Video Link](https://youtu.be/l1u3C_F79QE)
