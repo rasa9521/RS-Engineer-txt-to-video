@@ -67,12 +67,7 @@ image_urls = [
     "https://i.ibb.co/0V0BngV/file-3960.jpg",
     "https://i.ibb.co/rQMXQjX/file-3961.jpg",
 ]
-
-# Start command handler
-@bot.on_message(filters.command(["start"]))
-async def start_command(bot: Client, message: Message):
-    await bot.send_photo(chat_id=message.chat.id, photo=random_image_url, caption=caption, reply_markup=keyboard)
-    random_image_url = random.choice(image_urls)
+random_image_url = random.choice(image_urls)
     caption = (
         "**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!**\n\n"
         "➠ **𝐈 𝐚𝐦 𝐚 𝐓𝐞𝐱𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐫 𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐖𝐢𝐭𝐡 ♥️**\n"
@@ -81,6 +76,12 @@ async def start_command(bot: Client, message: Message):
         "➠ **Use /moni Command to Download From TXT File** 📄\n\n"
         "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @SanjayKagra86🩷"
     )
+
+# Start command handler
+@bot.on_message(filters.command(["start"]))
+async def start_command(bot: Client, message: Message):
+    await bot.send_photo(chat_id=message.chat.id, photo=random_image_url, caption=caption, reply_markup=keyboard)
+    
    
 @bot.on_message(filters.command("stop"))
 async def restart_handler(_, m):
