@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="[url=https://ibb.co/6LH1cqY][img]https://i.ibb.co/6LH1cqY/DALL-E-2025-02-03-00-58-09-The-text-Engineer-s-Babu-written-in-bold-edgy-cyberpunk-style-across-the.webp[/img][/url]" alt=" ミ★ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ★彡 Logo">
+  <img src="[url=[https://i.postimg.cc/d1JW4kb6/01.jpg][/img][/url]" alt=" ミ★ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ★彡 Logo">
 </p>
 <h1 align="center">
   ミ★ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ★彡
