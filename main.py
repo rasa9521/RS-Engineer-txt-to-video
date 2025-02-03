@@ -36,17 +36,6 @@ API_ID = os.environ.get("API_ID", "24495656")
 API_HASH = os.environ.get("API_HASH", "61afcf68c6429714dd18acd07f246571")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "7842202956:AAHgKbWG5FSQhRdcovXmqaEYlPMd-dQu630")
 
-# Define aiohttp routes
-routes = web.RouteTableDef()
-
-@routes.get("/", allow_head=True)
-async def root_route_handler(request):
-    return web.json_response("https://text-leech-bot-for-render.onrender.com/")
-
-async def web_server():
-    web_app = web.Application(client_max_size=30000000)
-    web_app.add_routes(routes)
-    return web_app
 
 async def start_bot():
     await bot.start()
