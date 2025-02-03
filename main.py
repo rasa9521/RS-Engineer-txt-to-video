@@ -72,7 +72,6 @@ image_urls = [
 @bot.on_message(filters.command(["start"]))
 async def start_command(bot: Client, message: Message):
     await bot.send_photo(chat_id=message.chat.id, photo=random_image_url, caption=caption, reply_markup=keyboard)
-    #loading_message = await bot.send_message(chat_id=message.chat.id, text="Loading... ⏳🔄")
     random_image_url = random.choice(image_urls)
     caption = (
         "**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!**\n\n"
@@ -82,8 +81,7 @@ async def start_command(bot: Client, message: Message):
         "➠ **Use /moni Command to Download From TXT File** 📄\n\n"
         "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @SanjayKagra86🩷"
     )
-    #await bot.send_photo(chat_id=message.chat.id, photo=random_image_url, caption=caption, reply_markup=keyboard)
-    #await loading_message.delete()
+   
 @bot.on_message(filters.command("stop"))
 async def restart_handler(_, m):
     await m.reply_text("**Stopped**🚦", True)
