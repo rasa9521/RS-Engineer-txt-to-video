@@ -31,15 +31,14 @@ bot = Client(
 
 @bot.on_message(filters.command(["start"]))
 async def start(bot: Client, m: Message):
-    # Path to the image you want to send
-    image_path = 'https://i.ibb.co/6LH1cqY/DALL-E-2025-02-03-00-58-09-The-text-Engineer-s-Babu-written-in-bold-edgy-cyberpunk-style-across-the.webp'
+    
     
     # Text to send along with the image
     caption_text = "🌟 Welcome {0}! 🌟 {m.from_user.mention} 👋\n\n I Am A Engineers Babu Bot For Download Links From Your **.TXT** File And Then Upload That File On Telegram So Basically If You Want To Use Me First Send Me /upload Command And Then Follow Few Steps..\n\nUse /stop to stop any ongoing task."
     
     # Send the image with the caption
     with open(image_path, 'rb') as photo:
-        await m.send_photo(photo=image_path, caption=caption_text)
+        await m.send_photo("https://ibb.co/K3NCpqt", caption=caption_text)
 
 
 @bot.on_message(filters.command("stop"))
