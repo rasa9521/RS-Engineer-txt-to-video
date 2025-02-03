@@ -74,12 +74,12 @@ image_urls = [
 random_image_url = random.choice(image_urls)
 # Define the caption
 caption = (
-    "**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!**\n\n"
+    "**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 {m.from_user.mention}👋!**\n\n"
     "➠ **𝐈 𝐚𝐦 𝐚 𝐓𝐞𝐱𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐫 𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐖𝐢𝐭𝐡 ♥️**\n"
     "➠ **Can Extract Videos & PDFs From Your Text File and Upload to Telegram!**\n"
     "➠ **For Guide Use Command /guide 📖**\n"
     "➠ **Use /Upload Command to Download From TXT File** 📄\n"
-    "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @Engineers_Babu"
+    "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @𝐄𝐧𝐠𝐢𝐧𝐞𝐞𝐫𝐬_𝐁𝐚𝐛𝐮"
 )
 
 # Start command handler
