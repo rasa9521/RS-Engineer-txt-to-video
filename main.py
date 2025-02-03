@@ -68,12 +68,13 @@ image_urls = [
     "https://i.ibb.co/rQMXQjX/file-3961.jpg",
 ]
 random_image_url = random.choice(image_urls)
-    caption = ("**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!**\n\n"
+    caption = ( "k \n\n"
+        "**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!**\n\n"
         "➠ **𝐈 𝐚𝐦 𝐚 𝐓𝐞𝐱𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐫 𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐖𝐢𝐭𝐡 ♥️**\n"
         "➠ **Can Extract Videos & PDFs From Your Text File and Upload to Telegram!**\n"
         "➠ **For Guide Use Command /guide 📖**\n"
-        "➠ **Use /moni Command to Download From TXT File** 📄\n"
-        "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @SanjayKagra86🩷")
+        "➠ **Use /Upload Command to Download From TXT File** 📄\n"
+        "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @Engineers_Babu")
 
 # Start command handler
 @bot.on_message(filters.command(["start"]))
