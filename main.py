@@ -23,24 +23,77 @@ from pyrogram.types.messages_and_media import message
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
+# Initialize the bot
 bot = Client(
     "bot",
     api_id=API_ID,
     api_hash=API_HASH,
-    bot_token=BOT_TOKEN)
+    bot_token=BOT_TOKEN
+)
 
+# Environment variables for API credentials
+API_ID = os.environ.get("API_ID", "24495656")
+API_HASH = os.environ.get("API_HASH", "61afcf68c6429714dd18acd07f246571")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "7842202956:AAHgKbWG5FSQhRdcovXmqaEYlPMd-dQu630")
+
+# Define aiohttp routes
+routes = web.RouteTableDef()
+
+@routes.get("/", allow_head=True)
+async def root_route_handler(request):
+    return web.json_response("https://text-leech-bot-for-render.onrender.com/")
+
+async def web_server():
+    web_app = web.Application(client_max_size=30000000)
+    web_app.add_routes(routes)
+    return web_app
+
+async def start_bot():
+    await bot.start()
+    print("Bot is up and running")
+
+async def stop_bot():
+    await bot.stop()
+
+# Inline keyboard for start command
+keyboard = InlineKeyboardMarkup(
+    [
+        [
+            InlineKeyboardButton(text="📞 Contact", url="https://t.me/sanjaykagra86"),
+            InlineKeyboardButton(text="🛠️ Help", url="https://t.me/SSC_Aspirants_7"),
+        ],
+        [
+            InlineKeyboardButton(text="🪄 Updates Channel", url="https://t.me/SSC_Aspirants_7"),
+        ],
+    ]
+)
+
+# Image URLs for the random image feature
+image_urls = [
+    "https://i.ibb.co/dpRKmmj/file-3957.jpg",
+    "https://i.ibb.co/NSbPQ5n/file-3956.jpg",
+    "https://i.ibb.co/Z8R4z0g/file-3962.jpg",
+    "https://i.ibb.co/LtqjVy7/file-3958.jpg",
+    "https://i.ibb.co/bm20zfd/file-3959.jpg",
+    "https://i.ibb.co/0V0BngV/file-3960.jpg",
+    "https://i.ibb.co/rQMXQjX/file-3961.jpg",
+]
+
+# Start command handler
 @bot.on_message(filters.command(["start"]))
-async def start(bot: Client, m: Message):
-    await m.reply_text("https://ibb.co/K3NCpqt \n\n"
+async def start_command(bot: Client, message: Message):
+    loading_message = await bot.send_message(chat_id=message.chat.id, text="Loading... ⏳🔄")
+    random_image_url = random.choice(image_urls)
+    caption = (
         "**𝐇𝐞𝐥𝐥𝐨 𝐃𝐞𝐚𝐫 👋!**\n\n"
         "➠ **𝐈 𝐚𝐦 𝐚 𝐓𝐞𝐱𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐫 𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐖𝐢𝐭𝐡 ♥️**\n"
         "➠ **Can Extract Videos & PDFs From Your Text File and Upload to Telegram!**\n"
-        "➠ **For Guide Use Command /guide 📖**\n"
-        "➠ **Use /Upload Command to Download From TXT File** 📄\n"
-        "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @Engineers_Babu")
-    #await m.reply_text(f"<b>🌟 Welcome {0}! 🌟 {m.from_user.mention} 👋\n\n I Am A Engineers Babu Bot For Download Links From Your **.TXT** File And Then Upload That File On Telegram So Basically If You Want To Use Me First Send Me /upload Command And Then Follow Few Steps..\n\nUse /stop to stop any ongoing task.</b>")
-
-
+        "➠ **For Guide Use Command /guide 📖**\n\n"
+        "➠ **Use /moni Command to Download From TXT File** 📄\n\n"
+        "➠ **𝐌𝐚𝐝𝐞 𝐁𝐲:** @SanjayKagra86🩷"
+    )
+    await bot.send_photo(chat_id=message.chat.id, photo=random_image_url, caption=caption, reply_markup=keyboard)
+    await loading_message.delete()
 @bot.on_message(filters.command("stop"))
 async def restart_handler(_, m):
     await m.reply_text("**Stopped**🚦", True)
