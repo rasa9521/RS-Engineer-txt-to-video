@@ -29,5 +29,7 @@ werkzeug==2.0.2
 itsdangerous==2.0.1
 youtube-dl
 pytube==15.0.0
+bs4
+beautifulsoup4
 cloudscraper
 m3u8
