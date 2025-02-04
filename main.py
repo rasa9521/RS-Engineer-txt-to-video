@@ -124,7 +124,7 @@ async def upload(bot: Client, m: Message):
     raw_text = input0.text
     await input0.delete(True)
 
-    await editable.edit("**Now Please Send Me Your Batch Name**")
+    await editable.edit("**∝ 𝐍𝐨𝐰 𝐏𝐥𝐞𝐚𝐬𝐞 𝐒𝐞𝐧𝐝 𝐌𝐞 𝐘𝐨𝐮𝐫 𝐁𝐚𝐭𝐜𝐡 𝐍𝐚𝐦𝐞**")
     input1: Message = await bot.listen(editable.chat.id)
     raw_text0 = input1.text
     await input1.delete(True)
@@ -305,7 +305,7 @@ async def upload(bot: Client, m: Message):
             try:  
                 
                 cc = f'**🎞️ VID_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.mkv\n📚 Batch Name  » {raw_text0}\n📥 Downloaded By » {MPH}**\n**<c>    ◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦</c>**'
-                cc1 = f'**📁 PDF_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.pdf\n📚 Batch Name  » {raw_text0}\n\n📥 Downloaded By » {MPH}**\n<c>    ◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦</c>**'
+                cc1 = f'**📁 PDF_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.pdf\n📚 Batch Name  » {raw_text0}\n📥 Downloaded By » {MPH}**\n<c>    ◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦</c>**'
                 if "drive" in url:
                     try:
                         ka = await helper.download(url, name)
@@ -331,7 +331,7 @@ async def upload(bot: Client, m: Message):
                         time.sleep(e.x)
                         continue
                 else:
-                    Show = f"**⥥ 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠⬇️⬇️... »**\n\n**📝Name »** `{name}\n❄Quality » {raw_text2}`\n**🔗𝐔𝐑𝐋 »** `[Hidden]`\n\n<c>    ◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦</c>**"
+                    Show = f"**❊⟱ 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 ⟱❊... »**\n\n**📝 𝐍𝐚𝐦𝐞 »** `{name}\n❄Quality » {raw_text2}`\n**🔗𝐔𝐑𝐋 »** `[Hidden]`\n\n<c>    ◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦</c>**"
                     prog = await m.reply_text(Show)
                     res_file = await helper.download_video(url, cmd, name)
                     filename = res_file
