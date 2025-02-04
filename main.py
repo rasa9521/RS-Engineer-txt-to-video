@@ -303,9 +303,11 @@ async def upload(bot: Client, m: Message):
 
 
             try:  
+                # Center the text within a width of 50 characters (you can adjust the width as needed)
+                centered_text = "◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦".center(50)
                 
-                cc = f'**🎞️ VID_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.mkv\n📚 Batch Name  » {raw_text0}\n📥 Downloaded By » {MPH}**\n**<c>    ◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦</c>**'
-                cc1 = f'**📁 PDF_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.pdf\n📚 Batch Name  » {raw_text0}\n📥 Downloaded By » {MPH}**\n<c>    ◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦</c>**'
+                cc = f'**🎞️ VID_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.mkv\n📚 Batch Name  » {raw_text0}\n📥 Downloaded By » {MPH}**\n**{centered_text}**'
+                cc1 = f'**📁 PDF_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.pdf\n📚 Batch Name  » {raw_text0}\n📥 Downloaded By » {MPH}**\n<c>{centered_text}**'
                 if "drive" in url:
                     try:
                         ka = await helper.download(url, name)
@@ -331,7 +333,7 @@ async def upload(bot: Client, m: Message):
                         time.sleep(e.x)
                         continue
                 else:
-                    Show = f"**❊⟱ 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 ⟱❊... »**\n\n**📝 𝐍𝐚𝐦𝐞 »** `{name}\n❄Quality » {raw_text2}`\n**🔗𝐔𝐑𝐋 »** `[Hidden]`\n\n<c>    ◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦</c>**"
+                    Show = f"**❊⟱ 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 ⟱❊... »**\n\n**📝 𝐍𝐚𝐦𝐞 »** `{name}\n❄Quality » {raw_text2}`\n**🔗𝐔𝐑𝐋 »** `[Hidden]`\n\n{centered_text}**"
                     prog = await m.reply_text(Show)
                     res_file = await helper.download_video(url, cmd, name)
                     filename = res_file
