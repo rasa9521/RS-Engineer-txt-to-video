@@ -8,12 +8,14 @@ import aiohttp
 import asyncio
 import requests
 import subprocess
+import cloudscraper
+import m3u8
 import random
 import yt_dlp
 from yt_dlp import YoutubeDL
 import yt_dlp as youtube_dl
-
-
+import cloudscraper
+import m3u8
 import core as helper
 from utils import progress_bar
 from vars import API_ID, API_HASH, BOT_TOKEN
