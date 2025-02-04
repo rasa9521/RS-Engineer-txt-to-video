@@ -4,10 +4,16 @@ import re
 import sys
 import json
 import time
+import aiohttp
 import asyncio
 import requests
 import subprocess
 import random
+import yt_dlp
+from yt_dlp import YoutubeDL
+import yt_dlp as youtube_dl
+from core import download_and_send_video
+
 
 import core as helper
 from utils import progress_bar
@@ -15,6 +21,7 @@ from vars import API_ID, API_HASH, BOT_TOKEN
 from aiohttp import ClientSession
 from pyromod import listen
 from subprocess import getstatusoutput
+from pytube import YouTube
 
 from pyrogram import Client, filters
 from pyrogram.types import Message
