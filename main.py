@@ -23,6 +23,13 @@ from pyrogram.errors.exceptions.bad_request_400 import StickerEmojiInvalid
 from pyrogram.types.messages_and_media import message
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+# Get the terminal width dynamically
+terminal_width = os.get_terminal_size().columns
+
+# Center the text dynamically based on terminal width
+centered_text = "◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦".center(terminal_width)
+
+
 
 # Initialize the bot
 bot = Client(
@@ -303,10 +310,6 @@ async def upload(bot: Client, m: Message):
 
 
             try:  
-                # Get the terminal width dynamically
-                terminal_width = os.get_terminal_size().columns
-                # Center the text dynamically based on terminal width
-                centered_text = "◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦".center(terminal_width)
                 
                 cc = f'**🎞️ VID_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.mkv\n📚 Batch Name  » {raw_text0}\n📥 Downloaded By » {MPH}**\n**{centered_text}**'
                 cc1 = f'**📁 PDF_ID: {str(count).zfill(3)}.\n\n📄 Title: {name1} {MPH}.pdf\n📚 Batch Name  » {raw_text0}\n📥 Downloaded By » {MPH}**\n<c>{centered_text}**'
