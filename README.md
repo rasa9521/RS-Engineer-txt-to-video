@@ -33,7 +33,7 @@ Copyright ©️ [𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚](https://
 </details>
 
 
-### Copyright ©️ [Tech VJ](https://t.me/Engineersbabuupdates)
+### Copyright ©️ [𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚](https://t.me/Engineersbabuupdates)
 
 <b>Selling This Repo Or Code Of This Repo For Money Is Strictly Prohibited 🚫</b>
 
