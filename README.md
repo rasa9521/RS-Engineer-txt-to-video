@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="[url=https://i.postimg.cc/d1JW4kb6/01.jpg" alt=" ミ★ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ★彡 Logo">
+  <img src="https://github.com/indianup/VJ-Txt-Leech-Bot/blob/main/Github/img/09.jpg" alt=" ミ★ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ★彡 ">
 </p>
 <h1 align="center">
   ミ★ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ★彡
