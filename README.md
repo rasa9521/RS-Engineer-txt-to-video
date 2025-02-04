@@ -11,11 +11,11 @@
 
 <b><details><summary>Tap On Me For See Credit</summary>
 
-💝 Credit Goes To [Tech VJ](https://telegram.me/Kingvj01) So Don't Forgot To Give Credit
+💝 Credit Goes To [Tech VJ](https://telegram.me/Engineers_Babu) So Don't Forgot To Give Credit
 
 💖 And Thank You So Much To All Who Help In This Journey 💕
 
-Copyright ©️ [Tech VJ](https://telegram.me/Kingvj01)
+Copyright ©️ [Tech VJ](https://telegram.me/Engineers_Babu)
 
 </b>
 </details>
@@ -24,16 +24,16 @@ Copyright ©️ [Tech VJ](https://telegram.me/Kingvj01)
 
 <b><details><summary>Tap On Me For See Details Of Owner</summary>
 
-- YouTube Channel : [Tech VJ](https://youtube.com/@Tech_VJ)
-- Telegram Channel : [VJ Botz](https://telegram.me/VJ_Botz)
-- Contact Link : [King VJ](https://telegram.me/Kingvj01)
-- Instagram Id Link : [Tech VJ](https://instagram.com/tech.vj)
+- YouTube Channel : [Tech VJ](https://www.youtube.com/@jaibajarangclasses8835)
+- Telegram Channel : [VJ Botz](https://t.me/Engineersbabuupdates))
+- Contact Link : [King VJ](https://telegram.me/Engineers_Babu)
+- Instagram Id Link : [Tech VJ]()
 
 </b>
 </details>
 
 
-### Copyright ©️ [Tech VJ](https://youtube.com/@Tech_VJ)
+### Copyright ©️ [Tech VJ](https://t.me/Engineersbabuupdates)
 
 <b>Selling This Repo Or Code Of This Repo For Money Is Strictly Prohibited 🚫</b>
 
