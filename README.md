@@ -11,11 +11,11 @@
 
 <b><details><summary>Tap On Me For See Credit</summary>
 
-💝 Credit Goes To [Tech VJ](https://telegram.me/Engineers_Babu) So Don't Forgot To Give Credit
+💝 Credit Goes To [𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚](https://telegram.me/Engineers_Babu) So Don't Forgot To Give Credit
 
 💖 And Thank You So Much To All Who Help In This Journey 💕
 
-Copyright ©️ [Tech VJ](https://telegram.me/Engineers_Babu)
+Copyright ©️ [𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚](https://telegram.me/Engineers_Babu)
 
 </b>
 </details>
@@ -24,10 +24,10 @@ Copyright ©️ [Tech VJ](https://telegram.me/Engineers_Babu)
 
 <b><details><summary>Tap On Me For See Details Of Owner</summary>
 
-- YouTube Channel : [Tech VJ](https://www.youtube.com/@jaibajarangclasses8835)
-- Telegram Channel : [VJ Botz](https://t.me/Engineersbabuupdates))
-- Contact Link : [King VJ](https://telegram.me/Engineers_Babu)
-- Instagram Id Link : [Tech VJ]()
+- YouTube Channel : [𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚](https://www.youtube.com/@jaibajarangclasses8835)
+- Telegram Channel : [𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚](https://t.me/Engineersbabuupdates))
+- Contact Link : [𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚](https://telegram.me/Engineers_Babu)
+- Instagram Id Link : [𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚]()
 
 </b>
 </details>
