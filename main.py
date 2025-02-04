@@ -24,12 +24,10 @@ from pyrogram.types.messages_and_media import message
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # Get the terminal width dynamically
-terminal_width = os.get_terminal_size().columns
+ terminal_width = 80
 
 # Center the text dynamically based on terminal width
 centered_text = "◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦".center(terminal_width)
-
-
 
 # Initialize the bot
 bot = Client(
