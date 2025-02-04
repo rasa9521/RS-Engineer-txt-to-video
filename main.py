@@ -25,7 +25,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # Center the text dynamically based on terminal width
 centered_text = "◦•●◉✿ 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚 ✿◉●•◦".center(90)
-Image_thumb = ""
+Image_thumb = "https://github.com/indianup/VJ-Txt-Leech-Bot/blob/main/Github/img/01.jpg"
 
 # Initialize the bot
 bot = Client(
