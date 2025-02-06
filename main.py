@@ -261,7 +261,7 @@ async def upload(bot: Client, m: Message):
                 #await m.reply_text(f"got keys form api : \n`{key}`")
           
             if "/master.mpd" in url:
-                cmd= f" yt-dlp -k --allow-unplayable-formats -f bestvideo.{quality} --fixup never {url} "
+                cmd= f" yt-dlp -k --allow-unplayable-formats -f bestvideo.{raw_text2} --fixup never {url} "
                 print("counted")
 
             
