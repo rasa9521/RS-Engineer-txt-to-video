@@ -124,6 +124,12 @@ async def upload(bot: Client, m: Message):
        for i in content:
            links.append(i.split("://", 1))
 
+        # Function to extract the title from the text file
+        def extract_title(file_path):
+            with open(file_path, 'r', encoding='utf-8') as file:
+                first_line = file.readline().strip()  # Read the first line and remove extra spaces
+                return first_line if first_line else "Untitled"  # Return "Untitled" if the file is empty
+
         # Extract the title from the file name
         file_name = os.path.basename(x)  # Get the file name from the path
         raw_text0 = os.path.splitext(file_name)[0]  # Remove the file extension to get the title
