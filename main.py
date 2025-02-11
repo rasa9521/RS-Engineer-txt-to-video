@@ -197,11 +197,11 @@ async def upload(bot: Client, m: Message):
     else:
         MPH = raw_text3
 
-    await editable.edit("**𝐄𝐧𝐭𝐞𝐫 𝐘𝐨𝐮𝐫 𝐏𝐖 𝐓𝐨𝐤𝐞𝐧 𝐅𝐨𝐫 𝐌𝐏𝐃 𝐔𝐑𝐋 𝐨𝐫 𝐬𝐞𝐧𝐝 '𝐧𝐨𝐭' 𝐟𝐨𝐫 𝐮𝐬𝐞 𝐝𝐞𝐟𝐚𝐮𝐥𝐭**")
+    await editable.edit("**𝐄𝐧𝐭𝐞𝐫 𝐘𝐨𝐮𝐫 𝐏𝐖 𝐓𝐨𝐤𝐞𝐧 𝐅𝐨𝐫 𝐌𝐏𝐃 𝐔𝐑𝐋 𝐨𝐫 𝐒𝐞𝐧𝐝 '𝐎𝐭𝐡' 𝐟𝐨𝐫 𝐎𝐭𝐡𝐞𝐫𝐬**")
     input4: Message = await bot.listen(editable.chat.id)
     raw_text4 = input4.text
     await input4.delete(True)
-    if raw_text4 == 'Not':
+    if raw_text4 == 'Oth':
         MR = None
     else:
         MR = raw_text4
