@@ -147,6 +147,36 @@ async def upload(bot: Client, m: Message):
     raw_text = input0.text
     await input0.delete(True)
 
+    #await editable.edit(f"**∝ 𝐓𝐨𝐭𝐚𝐥 𝐋𝐢𝐧𝐤 𝐅𝐨𝐮𝐧𝐝 𝐀𝐫𝐞 🔗** **{len(links)}**\n\n**𝐒𝐞𝐧𝐝 𝐅𝐫𝐨𝐦 𝐖𝐡𝐞𝐫𝐞 𝐘𝐨𝐮 𝐖𝐚𝐧𝐭 𝐓𝐨 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐈𝐧𝐢𝐭𝐢𝐚𝐥 𝐢𝐬** **1**")
+    #input0: Message = await bot.listen(editable.chat.id)
+    #raw_text = input0.text
+    #await input0.delete(True)
+    
+    # Check if the user provided specific numbers
+    if "," in raw_text:
+        # Split the input into a list of numbers
+        specific_numbers = list(map(int, raw_text.split(",")))
+        
+        # Filter the links based on the specific numbers
+        filtered_links = [links[i-1] for i in specific_numbers if 1 <= i <= len(links)]
+        
+        # Update the editable message with the filtered links count
+        await editable.edit(f"**∝ 𝐓𝐨𝐭𝐚𝐥 𝐋𝐢𝐧𝐤 𝐅𝐨𝐮𝐧𝐝 𝐀𝐫𝐞 🔗** **{len(filtered_links)}**\n\n**𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 𝐒𝐩𝐞𝐜𝐢𝐟𝐢𝐜 𝐅𝐢𝐥𝐞𝐬:** **{specific_numbers}**")
+        
+        # Now you can proceed to download the filtered_links
+        # Your download logic here...
+        
+    else:
+        # If no specific numbers are provided, proceed with the original logic
+        start_index = int(raw_text) - 1
+        links_to_download = links[start_index:]
+        
+        # Update the editable message with the total links to download
+        await editable.edit(f"**∝ 𝐓𝐨𝐭𝐚𝐥 𝐋𝐢𝐧𝐤 𝐅𝐨𝐮𝐧𝐝 𝐀𝐫𝐞 🔗** **{len(links_to_download)}**\n\n**𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 𝐅𝐫𝐨𝐦 𝐈𝐧𝐝𝐞𝐱:** **{start_index + 1}**")
+        
+        # Now you can proceed to download the links_to_download
+        # Your download logic here...
+
     await editable.edit("**∝ 𝐍𝐨𝐰 𝐏𝐥𝐞𝐚𝐬𝐞 𝐒𝐞𝐧𝐝 𝐌𝐞 𝐘𝐨𝐮𝐫 𝐁𝐚𝐭𝐜𝐡 𝐍𝐚𝐦𝐞\n𝐨𝐫 𝐂 𝐭𝐨 𝐜𝐨𝐩𝐲 𝐟𝐫𝐨𝐦 𝐔𝐩𝐥𝐨𝐚𝐝𝐞𝐝 𝐟𝐢𝐥𝐞**")
     input1: Message = await bot.listen(editable.chat.id)
     
