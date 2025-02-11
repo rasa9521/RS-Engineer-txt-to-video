@@ -146,26 +146,6 @@ async def upload(bot: Client, m: Message):
     raw_text = input0.text
     await input0.delete(True)
 
-    from pyrogram.errors import ListenerTimeout
-    
-    try:
-        # Check if the URL contains '/master.mpd'
-        if url and '/master.mpd' in url:
-            await editable.edit("**𝐄𝐧𝐭𝐞𝐫 𝐘𝐨𝐮𝐫 𝐏𝐖 𝐓𝐨𝐤𝐞𝐧 𝐅𝐨𝐫 𝐌𝐏𝐃 𝐔𝐑𝐋**")
-            try:
-                input4: Message = await bot.listen(editable.chat.id, timeout=30)  # Add timeout
-                raw_text4 = input4.text
-                await input4.delete(True)
-                MR = raw_text4
-            except ListenerTimeout:
-                await editable.edit("**Timeout: No response received. Please try again.**")
-                MR = None
-        else:
-            MR = None  # No token required if URL does not contain '/master.mpd'
-    except Exception as e:
-        await editable.edit(f"**An error occurred: {str(e)}**")
-        MR = None
-
     await editable.edit("**∝ 𝐍𝐨𝐰 𝐏𝐥𝐞𝐚𝐬𝐞 𝐒𝐞𝐧𝐝 𝐌𝐞 𝐘𝐨𝐮𝐫 𝐁𝐚𝐭𝐜𝐡 𝐍𝐚𝐦𝐞\n𝐨𝐫 𝐂 𝐭𝐨 𝐜𝐨𝐩𝐲 𝐟𝐫𝐨𝐦 𝐔𝐩𝐥𝐨𝐚𝐝𝐞𝐝 𝐟𝐢𝐥𝐞**")
     input1: Message = await bot.listen(editable.chat.id)
     
