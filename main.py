@@ -105,8 +105,6 @@ async def restart_handler(_, m):
     await m.reply_text("**𝐒𝐭𝐨𝐩𝐩𝐞𝐝**🚦", True)
     os.execl(sys.executable, sys.executable, *sys.argv)
 
-
-
 @bot.on_message(filters.command(["upload"]))
 async def upload(bot: Client, m: Message):
     editable = await m.reply_text('𝐓𝐨 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐀 𝐓𝐱𝐭 𝐅𝐢𝐥𝐞 𝐒𝐞𝐧𝐝 𝐇𝐞𝐫𝐞 📄')
@@ -117,28 +115,30 @@ async def upload(bot: Client, m: Message):
     path = f"./downloads/{m.chat.id}"
 
     try:
-       with open(x, "r") as f:
-           content = f.read()
-       content = content.split("\n")
-       links = []
-       for i in content:
-           links.append(i.split("://", 1))
-
-        # Function to extract the title from the text file
-        def extract_title(file_path):
-            with open(file_path, 'r', encoding='utf-8') as file:
-                first_line = file.readline().strip()  # Read the first line and remove extra spaces
-                return first_line if first_line else "Untitled"  # Return "Untitled" if the file is empty
-
-        # Extract the title from the file name
+        # Extract the file name without extension
         file_name = os.path.basename(x)  # Get the file name from the path
-        raw_text0 = os.path.splitext(file_name)[0]  # Remove the file extension to get the title
-       os.remove(x)
-            # print(len(links)
-    except:
-           await m.reply_text("**∝ 𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐟𝐢𝐥𝐞 𝐢𝐧𝐩𝐮𝐭.**")
-           os.remove(x)
-           return
+        raw_text0 = os.path.splitext(file_name)[0]  # Remove the file extension
+
+        with open(x, "r") as f:
+            content = f.read()
+        content = content.split("\n")
+        links = []
+        for i in content:
+            links.append(i.split("://", 1))
+
+        # Print or use raw_text0 for further processing
+        print(f"Extracted file name: {raw_text0}")
+
+        # Continue with the rest of the logic
+        # (e.g., processing links, etc.)
+
+        # Clean up the downloaded file
+        os.remove(x)
+
+    except Exception as e:
+        await m.reply_text(f"**∝ 𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐟𝐢𝐥𝐞 𝐢𝐧𝐩𝐮𝐭 𝐨𝐫 𝐞𝐫𝐫𝐨𝐫: {str(e)}**")
+        os.remove(x)
+        return
     
    
     await editable.edit(f"**∝ 𝐓𝐨𝐭𝐚𝐥 𝐋𝐢𝐧𝐤 𝐅𝐨𝐮𝐧𝐝 𝐀𝐫𝐞 🔗** **{len(links)}**\n\n**𝐒𝐞𝐧𝐝 𝐅𝐫𝐨𝐦 𝐖𝐡𝐞𝐫𝐞 𝐘𝐨𝐮 𝐖𝐚𝐧𝐭 𝐓𝐨 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐈𝐧𝐢𝐭𝐚𝐥 𝐢𝐬** **1**")
