@@ -297,6 +297,10 @@ async def upload(bot: Client, m: Message):
                 vid_id = url.split("/")[-2]
                 url =  f"https://pwplayer-0e2dbbdc0989.herokuapp.com/player?url=https://d1d34p8vz63oiq.cloudfront.net/{vid_id}/master.mpd?token={raw_text4}"
 
+            elif '/master.mpd' in url:
+                vid_id =  url.split("hls")[-1]
+                url =  f"https://pw-links-api.onrender.com/process?v=https://sec1.pw.live/{vid_id}/master.mpd&quality={raw_text2}"
+
 #            elif 'videos.classplusapp' in url or "tencdn.classplusapp" in url or "webvideos.classplusapp.com" in url or "media-cdn-alisg.classplusapp.com" in url or "videos.classplusapp" in url or "videos.classplusapp.com" in url or "media-cdn-a.classplusapp" in url or "media-cdn.classplusapp" in url:
 #             url = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': 'eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJpZCI6MzgzNjkyMTIsIm9yZ0lkIjoyNjA1LCJ0eXBlIjoxLCJtb2JpbGUiOiI5MTcwODI3NzQyODkiLCJuYW1lIjoiQWNlIiwiZW1haWwiOm51bGwsImlzRmlyc3RMb2dpbiI6dHJ1ZSwiZGVmYXVsdExhbmd1YWdlIjpudWxsLCJjb3VudHJ5Q29kZSI6IklOIiwiaXNJbnRlcm5hdGlvbmFsIjowLCJpYXQiOjE2NDMyODE4NzcsImV4cCI6MTY0Mzg4NjY3N30.hM33P2ai6ivdzxPPfm01LAd4JWv-vnrSxGXqvCirCSpUfhhofpeqyeHPxtstXwe0'}).json()['url']
                             
@@ -330,7 +334,13 @@ async def upload(bot: Client, m: Message):
                 cmd= f" yt-dlp -k --allow-unplayable-formats -f bestvideo.{raw_text2} --fixup never {url} "
                 print("counted")
 
-            
+            elif "apps-s3-jw-prod.utkarshapp.com" in url:
+                  headers = {  
+                          "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",  
+                          "Accept-Language": "en-US,en;q=0.9",  
+                  }
+                  response = requests.get(url, headers=headers)  
+                  print(response.text)
 
             if "edge.api.brightcove.com" in url:
                 bcov = 'bcov_auth=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MjQyMzg3OTEsImNvbiI6eyJpc0FkbWluIjpmYWxzZSwiYXVzZXIiOiJVMFZ6TkdGU2NuQlZjR3h5TkZwV09FYzBURGxOZHowOSIsImlkIjoiZEUxbmNuZFBNblJqVEROVmFWTlFWbXhRTkhoS2R6MDkiLCJmaXJzdF9uYW1lIjoiYVcxV05ITjVSemR6Vm10ak1WUlBSRkF5ZVNzM1VUMDkiLCJlbWFpbCI6Ik5Ga3hNVWhxUXpRNFJ6VlhiR0ppWTJoUk0wMVdNR0pVTlU5clJXSkRWbXRMTTBSU2FHRnhURTFTUlQwPSIsInBob25lIjoiVUhVMFZrOWFTbmQ1ZVcwd1pqUTViRzVSYVc5aGR6MDkiLCJhdmF0YXIiOiJLM1ZzY1M4elMwcDBRbmxrYms4M1JEbHZla05pVVQwOSIsInJlZmVycmFsX2NvZGUiOiJOalZFYzBkM1IyNTBSM3B3VUZWbVRtbHFRVXAwVVQwOSIsImRldmljZV90eXBlIjoiYW5kcm9pZCIsImRldmljZV92ZXJzaW9uIjoiUShBbmRyb2lkIDEwLjApIiwiZGV2aWNlX21vZGVsIjoiU2Ftc3VuZyBTTS1TOTE4QiIsInJlbW90ZV9hZGRyIjoiNTQuMjI2LjI1NS4xNjMsIDU0LjIyNi4yNTUuMTYzIn19.snDdd-PbaoC42OUhn5SJaEGxq0VzfdzO49WTmYgTx8ra_Lz66GySZykpd2SxIZCnrKR6-R10F5sUSrKATv1CDk9ruj_ltCjEkcRq8mAqAytDcEBp72-W0Z7DtGi8LdnY7Vd9Kpaf499P-y3-godolS_7ixClcYOnWxe2nSVD5C9c5HkyisrHTvf6NFAuQC_FD3TzByldbPVKK0ag1UnHRavX8MtttjshnRhv5gJs5DQWj4Ir_dkMcJ4JaVZO3z8j0OxVLjnmuaRBujT-1pavsr1CCzjTbAcBvdjUfvzEhObWfA1-Vl5Y4bUgRHhl1U-0hne4-5fF0aouyu71Y6W0eg'
@@ -363,6 +373,82 @@ async def upload(bot: Client, m: Message):
                 getstatusoutput(f'curl "{rout}" -c "cookie.txt"')              
                 cook = "cookie.txt"
 
+            if '?list' in url:
+               video_id = url.split("/embed/")[1].split("?")[0]
+               print(video_id)
+               url = f"https://www.youtube.com/embed/{video_id}"
+
+            if 'khansirvod4.pc.cdn.bitgravity.com' in url:               
+               parts = url.split('/')               
+               part1 = parts[1]
+               part2 = parts[2]
+               part3 = parts[3] 
+               part4 = parts[4]
+               part5 = parts[5]
+               
+               print(f"PART1: {part1}")
+               print(f"PART2: {part2}")
+               print(f"PART3: {part3}")
+               print(f"PART4: {part4}")
+               print(f"PART5: {part5}")
+               url = f"https://kgs-v4.akamaized.net/kgs-cv/{part3}/{part4}/{part5}"
+            if '/onlineagriculture' in url:
+                # Splitting the URL
+               parts = url.split("/")
+               # Extracting required components
+               vid_id = parts[-4]  # "788682-1714995256"
+               hls = parts[-3]  # "hls-78632a"
+               quality = parts[-2]  # "360p"
+               master = parts[-1]  # "master-9443895.928218126.m3u8"
+
+              # Printing the results
+               print(f"Vid ID: {vid_id}")
+               print(f"HLS: {hls}")
+               print(f"Quality: {quality}")
+               print(f"Master: {master}")
+               url = f"https://appx-transcoded-videos.akamai.net.in/videos/onlineagriculture-data/{vid_id}/{hls}/{raw_text2}p/{master}"
+                
+            if 'workers.dev' in url:
+             vid_id = url.split("cloudfront.net/")[1].split("/")[0]
+             print(vid_id)
+             url = f"https://madxapi-d0cbf6ac738c.herokuapp.com/{vid_id}/master.m3u8?token={raw_text4}"
+
+            if 'livelearn.in' in url:
+               parts = url.split("/")
+               # Extracting required components
+               vid_id = parts[-4]  # "788682-1714995256"
+               hls = parts[-3]  # "hls-78632a"
+               quality = parts[-2]  # "360p"
+               master = parts[-1]  # "master-9443895.928218126.m3u8"
+
+              # Printing the results
+               print(f"Vid ID: {vid_id}")
+               print(f"HLS: {hls}")
+               print(f"Quality: {quality}")
+               print(f"Master: {master}")
+               url = f"https://appx-transcoded-videos.livelearn.in/videos/englishjaisir-data/{vid_id}/hls/{raw_text2}p/{master}.m3u8"
+                
+            if '/videos/englishjaisir' in url:
+               parts = url.split("/")
+               # Extracting required components
+               vid_id = parts[-4]  # "788682-1714995256"
+               hls = parts[-3]  # "hls-78632a"
+               quality = parts[-2]  # "360p"
+               master = parts[-1]  # "master-9443895.928218126.m3u8"
+
+              # Printing the results
+               print(f"Vid ID: {vid_id}")
+               print(f"HLS: {hls}")
+               print(f"Quality: {quality}")
+               print(f"Master: {master}")
+               url = f"https://appx-transcoded-videos.livelearn.in/videos/englishjaisir-data/{vid_id}/{hls}/{raw_text2}p/{master}"
+            
+            if 'psitoffers.store' in url:
+             vid_id = url.split("vid=")[1].split("&")[0]
+             print(f"vid_id = {vid_id}")
+             url =  f"https://madxapi-d0cbf6ac738c.herokuapp.com/{vid_id}/master.m3u8?token={raw_text4}"
+            
+            
             if "youtu" in url:
                 ytf = f"b[height<={raw_text2}][ext=mp4]/bv[height<={raw_text2}][ext=mp4]+ba[ext=m4a]/b[ext=mp4]"
             else:
