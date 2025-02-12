@@ -260,6 +260,10 @@ async def upload(bot: Client, m: Message):
 
             V = links[i][1].replace("file/d/","uc?export=download&id=").replace("www.youtube-nocookie.com/embed", "youtu.be").replace("?modestbranding=1", "").replace("/view?usp=sharing","") #.replace("youtube.com/embed/", "youtube.com/watch?v=") # .replace("mpd","m3u8")
             url = "https://" + V
+             # YouTube video download logic
+            if "youtube.com" in url or "youtu.be" in url:
+                ytf = f"b[height<={raw_text2}]/bv[height<={raw_text2}]+ba/b/bv+ba"
+                cmd = f'yt-dlp -f "{ytf}" "{url}" -o "{name}.mp4"'
 
             
             if "visionias" in url:
