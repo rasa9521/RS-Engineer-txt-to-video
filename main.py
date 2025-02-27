@@ -98,18 +98,6 @@ def generate_html_file(filename, videos, pdfs, others):
         </div>
         
         <div class="footer">Extracted By - <a href="https://t.me/Engineers_Babu" target="_blank">Engineer Babu</a></div>
-
-        <script>
-            function toggleContent(tabName) {
-                const content = document.getElementById(tabName);
-                if (content.classList.contains('active')) {
-                    content.classList.remove('active');
-                } else {
-                    document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
-                    content.classList.add('active');
-                }
-            }
-        </script>
     </body>
     </html>
     """
