@@ -24,19 +24,19 @@ def extract_urls_and_names(text):
     return urls, names
 
 # Function to categorize URLs
-def categorize_urls(urls):
+def categorize_urls(urls, names):
     videos = []
     pdfs = []
     others = []
 
-    for name, url in urls:
+    for url, name in zip(urls, names):
         if "media-cdn.classplusapp.com/drm/" in url or "cpvod.testbook" in url:
             new_url = f"https://dragoapi.vercel.app/video/{url}"
-            videos.append((name, new_url))
+            videos.append((new_url, name))
         elif "pdf" in url:
-            pdfs.append((name, url))
+            pdfs.append((url, name))
         else:
-            others.append((name, url))
+            others.append((url, name))
 
     return videos, pdfs, others
 
