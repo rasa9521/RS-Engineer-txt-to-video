@@ -1,38 +1,7 @@
 import re
 import os
-from telegram import Update, InputFile
-import os
-import re
-import sys
-import json
-import time
-import aiohttp
-import asyncio
-import requests
-import subprocess
-import urllib.parse
-import cloudscraper
-import m3u8
-import random
-import yt_dlp
-from yt_dlp import YoutubeDL
-import yt_dlp as youtube_dl
-import cloudscraper
-import m3u8
-import core as helper
-from utils import progress_bar
-from vars import API_ID, API_HASH, BOT_TOKEN
-from aiohttp import ClientSession
-from pyromod import listen
-from subprocess import getstatusoutput
-from pytube import YouTube
-from aiohttp import web
-
 from pyrogram import Client, filters
-from pyrogram.types import Message
-from pyrogram.errors import FloodWait
-from pyrogram.errors.exceptions.bad_request_400 import StickerEmojiInvalid
-from pyrogram.types.messages_and_media import message
+from pyrogram.types import Message, InputMediaDocument
 
 # Function to extract URLs and their names from the text file
 def extract_urls_and_names(text):
@@ -157,42 +126,38 @@ def generate_html_file(filename, videos, pdfs, others):
         file.write(html_content)
     return html_filename
 
-# Telegram bot handlers
-def start(update: Update, context: CallbackContext):
-    update.message.reply_text("Welcome! Please upload a .txt file.")
+# Initialize Pyrogram Client
+app = Client("my_bot", api_id="YOUR_API_ID", api_hash="YOUR_API_HASH", bot_token="YOUR_BOT_TOKEN")
 
-def handle_file(update: Update, context: CallbackContext):
-    file = update.message.document.get_file()
-    filename = update.message.document.file_name
+# Start Command Handler
+@app.on_message(filters.command("start"))
+async def start(client: Client, message: Message):
+    await message.reply_text("Welcome! Please upload a .txt file.")
 
-    if not filename.endswith(".txt"):
-        update.message.reply_text("Please upload a .txt file.")
+# File Handler
+@app.on_message(filters.document)
+async def handle_file(client: Client, message: Message):
+    if not message.document.file_name.endswith(".txt"):
+        await message.reply_text("Please upload a .txt file.")
         return
 
-    file.download(filename)
-    with open(filename, "r") as f:
+    # Download the file
+    file_path = await message.download()
+    with open(file_path, "r") as f:
         text = f.read()
 
+    # Process the file
     urls, names = extract_urls_and_names(text)
     videos, pdfs, others = categorize_urls(urls, names)
-    html_filename = generate_html_file(filename, videos, pdfs, others)
+    html_filename = generate_html_file(message.document.file_name, videos, pdfs, others)
 
-    with open(html_filename, "rb") as f:
-        update.message.reply_document(document=InputFile(f))
+    # Send the HTML file back to the user
+    await message.reply_document(document=html_filename)
 
     # Clean up files
-    os.remove(filename)
+    os.remove(file_path)
     os.remove(html_filename)
 
-def main():
-    updater = Updater("YOUR_BOT_TOKEN", use_context=True)
-    dp = updater.dispatcher
-
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.document, handle_file))
-
-    updater.start_polling()
-    updater.idle()
-
+# Run the bot
 if __name__ == "__main__":
-    main()
+    app.run()
