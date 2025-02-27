@@ -98,7 +98,7 @@ def generate_html_file(filename, videos, pdfs, others):
         </div>
         
         <div class="footer">Extracted By - <a href="https://t.me/Engineers_Babu" target="_blank">Engineer Babu</a></div>
-        
+
         <script>
             function toggleContent(tabName) {
                 const content = document.getElementById(tabName);
@@ -113,7 +113,7 @@ def generate_html_file(filename, videos, pdfs, others):
     </body>
     </html>
     """
-
+    
     html_filename = f"{batch_name.replace(' ', '_')}.html"
     with open(html_filename, "w") as file:
         file.write(html_content)
