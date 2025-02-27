@@ -25,7 +25,7 @@ def categorize_urls(urls, names):
         if "media-cdn.classplusapp.com/drm/" in url or "cpvod.testbook" in url:
             new_url = f"https://dragoapi.vercel.app/video/{url}"
             videos.append((new_url, name))
-        elif "pdf" in url:
+        elif "pdf" in url.lower():
             pdfs.append((url, name))
         else:
             others.append((url, name))
@@ -67,7 +67,7 @@ def generate_html_file(filename, videos, pdfs, others):
         </style>
     </head>
     <body>
-        <div class="header">Batch Name</div>
+        <div class="header">{batch_name}</div>
         <div class="subheading">Your one-stop destination for Learning</div>
     
         <div class="container">
@@ -134,22 +134,29 @@ async def handle_file(client: Client, message: Message):
         await message.reply_text("Please upload a .txt file.")
         return
 
-    # Download the file
-    file_path = await message.download()
-    with open(file_path, "r") as f:
-        text = f.read()
+    try:
+        # Download the file
+        file_path = await message.download()
+        with open(file_path, "r") as f:
+            text = f.read()
 
-    # Process the file
-    urls, names = extract_urls_and_names(text)
-    videos, pdfs, others = categorize_urls(urls, names)
-    html_filename = generate_html_file(message.document.file_name, videos, pdfs, others)
+        # Process the file
+        urls, names = extract_urls_and_names(text)
+        videos, pdfs, others = categorize_urls(urls, names)
+        html_filename = generate_html_file(message.document.file_name, videos, pdfs, others)
 
-    # Send the HTML file back to the user
-    await message.reply_document(document=html_filename)
+        # Send the HTML file back to the user
+        await message.reply_document(document=html_filename)
 
-    # Clean up files
-    os.remove(file_path)
-    os.remove(html_filename)
+    except Exception as e:
+        await message.reply_text(f"An error occurred: {e}")
+
+    finally:
+        # Clean up files
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        if os.path.exists(html_filename):
+            os.remove(html_filename)
 
 # Run the bot
 if __name__ == "__main__":
