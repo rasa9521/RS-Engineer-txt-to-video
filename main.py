@@ -8,8 +8,8 @@ API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
 BOT_TOKEN = "8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4"
 
-# Initialize the Pyrogram client
-app = Client("my_bot", api_id=21705536, api_hash=c5bb241f6e3ecf33fe68a444e288de2d, bot_token=8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4)
+# Initialize Pyrogram Client
+app = Client("my_bot", api_id="21705536", api_hash="c5bb241f6e3ecf33fe68a444e288de2d", bot_token="8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4")
 
 # Function to extract URLs and their names from the text file
 def extract_urls_and_names(file_content):
