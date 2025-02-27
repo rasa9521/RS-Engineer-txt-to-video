@@ -4,12 +4,12 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 
 # Replace with your API ID, API Hash, and Bot Token
-API_ID = "YOUR_API_ID"
-API_HASH = "YOUR_API_HASH"
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+API_ID = "21705536"
+API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
+BOT_TOKEN = "8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4"
 
-# Initialize the Pyrogram client
-app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+# Initialize Pyrogram Client
+app = Client("my_bot", api_id="21705536", api_hash="c5bb241f6e3ecf33fe68a444e288de2d", bot_token="8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4")
 
 # Function to extract names and URLs from the text file
 def extract_names_and_urls(file_content):
