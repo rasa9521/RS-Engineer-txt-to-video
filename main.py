@@ -127,7 +127,7 @@ def generate_html_file(filename, videos, pdfs, others):
     return html_filename
 
 # Initialize Pyrogram Client
-app = Client("my_bot", api_id="YOUR_API_ID", api_hash="YOUR_API_HASH", bot_token="YOUR_BOT_TOKEN")
+app = Client("my_bot", api_id="21705536", api_hash="c5bb241f6e3ecf33fe68a444e288de2d", bot_token="8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4")
 
 # Start Command Handler
 @app.on_message(filters.command("start"))
