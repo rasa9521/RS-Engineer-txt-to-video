@@ -12,11 +12,16 @@ BOT_TOKEN = "8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4"
 app = Client("my_bot", api_id="21705536", api_hash="c5bb241f6e3ecf33fe68a444e288de2d", bot_token="8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4")
 
 # Function to extract URLs and their names from the text file
-def extract_urls_and_names(file_content):
-    url_pattern = re.compile(r'https?://[^\s]+')
-    urls = url_pattern.findall(file_content)
-    names = [url.split('/')[-1].split('.')[0] for url in urls]  # Extract names from URLs
-    return list(zip(names, urls))
+def extract_urls_and_names(text):
+    # Regex to match the pattern: <name>:<url>
+    pattern = re.compile(r"([^:]+):\s*(https?://[^\s]+)")
+    matches = pattern.findall(text)
+    
+    # Extract names and URLs
+    names = [match[0].strip() for match in matches]
+    urls = [match[1].strip() for match in matches]
+    
+    return urls, names
 
 # Function to categorize URLs
 def categorize_urls(urls):
