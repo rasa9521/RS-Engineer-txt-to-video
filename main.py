@@ -1,15 +1,7 @@
-import os
 import re
+import os
 from pyrogram import Client, filters
-from pyrogram.types import Message
-
-# Replace with your API ID, API Hash, and Bot Token
-API_ID = "21705536"
-API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
-BOT_TOKEN = "8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4"
-
-# Initialize Pyrogram Client
-app = Client("my_bot", api_id="21705536", api_hash="c5bb241f6e3ecf33fe68a444e288de2d", bot_token="8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4")
+from pyrogram.types import Message, InputMediaDocument
 
 # Function to extract URLs and their names from the text file
 def extract_urls_and_names(text):
@@ -22,7 +14,7 @@ def extract_urls_and_names(text):
     urls = [match[1].strip() for match in matches]
     
     return urls, names
-
+    
 # Function to categorize URLs
 def categorize_urls(urls, names):
     videos = []
@@ -118,49 +110,43 @@ def generate_html(file_name, videos, pdfs, others):
 </body>
 </html>
     """
-    return html_template
+html_filename = f"{batch_name.replace(' ', '_')}.html"
+    with open(html_filename, "w") as file:
+        file.write(html_content)
+    return html_filename
 
-# Command handler for /start
+# Initialize Pyrogram Client
+app = Client("my_bot", api_id="21705536", api_hash="c5bb241f6e3ecf33fe68a444e288de2d", bot_token="8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4")
+
+# Start Command Handler
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply_text("Welcome! Please upload a .txt file containing URLs.")
+    await message.reply_text("Welcome! Please upload a .txt file.")
 
-# Message handler for file uploads
+# File Handler
 @app.on_message(filters.document)
 async def handle_file(client: Client, message: Message):
-    # Check if the file is a .txt file
     if not message.document.file_name.endswith(".txt"):
         await message.reply_text("Please upload a .txt file.")
         return
 
     # Download the file
     file_path = await message.download()
-    file_name = message.document.file_name
-
-    # Read the file content
     with open(file_path, "r") as f:
-        file_content = f.read()
+        text = f.read()
 
-    # Extract URLs and names
-    urls = extract_urls_and_names(file_content)
+    # Process the file
+    urls, names = extract_urls_and_names(text)
+    videos, pdfs, others = categorize_urls(urls, names)
+    html_filename = generate_html_file(message.document.file_name, videos, pdfs, others)
 
-    # Categorize URLs
-    videos, pdfs, others = categorize_urls(urls)
-
-    # Generate HTML
-    html_content = generate_html(file_name, videos, pdfs, others)
-    html_file_path = file_path.replace(".txt", ".html")
-    with open(html_file_path, "w") as f:
-        f.write(html_content)
-
-    # Send the HTML file to the user
-    await message.reply_document(document=html_file_path, caption="Here is your generated HTML file!")
+    # Send the HTML file back to the user
+    await message.reply_document(document=html_filename)
 
     # Clean up files
     os.remove(file_path)
-    os.remove(html_file_path)
+    os.remove(html_filename)
 
 # Run the bot
 if __name__ == "__main__":
-    print("Bot is running...")
     app.run()
