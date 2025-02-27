@@ -33,3 +33,4 @@ bs4
 beautifulsoup4
 cloudscraper
 m3u8
+python-telegram-bot==20.0
