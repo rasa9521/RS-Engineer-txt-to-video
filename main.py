@@ -1,34 +1,40 @@
-import re
 import os
+import re
 from pyrogram import Client, filters
-from pyrogram.types import Message, InputMediaDocument
+from pyrogram.types import Message
 
-# Function to extract URLs and their names from the text file
-def extract_urls_and_names(text):
-    # Regex to match the pattern: <name>:<url>
-    pattern = re.compile(r"([^:]+):\s*(https?://[^\s]+)")
-    matches = pattern.findall(text)
-    
-    # Extract names and URLs
-    names = [match[0].strip() for match in matches]
-    urls = [match[1].strip() for match in matches]
-    
-    return urls, names
-    
+# Replace with your API ID, API Hash, and Bot Token
+API_ID = "YOUR_API_ID"
+API_HASH = "YOUR_API_HASH"
+BOT_TOKEN = "YOUR_BOT_TOKEN"
+
+# Initialize the Pyrogram client
+app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
+# Function to extract names and URLs from the text file
+def extract_names_and_urls(file_content):
+    lines = file_content.strip().split("\n")  # Split content into lines
+    data = []
+    for line in lines:
+        if ":" in line:  # Check if the line contains a separator
+            name, url = line.split(":", 1)  # Split into name and URL
+            data.append((name.strip(), url.strip()))  # Remove extra spaces
+    return data
+
 # Function to categorize URLs
-def categorize_urls(urls, names):
+def categorize_urls(urls):
     videos = []
     pdfs = []
     others = []
 
-    for url, name in zip(urls, names):
+    for name, url in urls:
         if "media-cdn.classplusapp.com/drm/" in url or "cpvod.testbook" in url:
             new_url = f"https://dragoapi.vercel.app/video/{url}"
-            videos.append((new_url, name))
+            videos.append((name, new_url))
         elif "pdf" in url:
-            pdfs.append((url, name))
+            pdfs.append((name, url))
         else:
-            others.append((url, name))
+            others.append((name, url))
 
     return videos, pdfs, others
 
@@ -110,43 +116,49 @@ def generate_html(file_name, videos, pdfs, others):
 </body>
 </html>
     """
-html_filename = f"{batch_name.replace(' ', '_')}.html"
-    with open(html_filename, "w") as file:
-        file.write(html_content)
-    return html_filename
+    return html_template
 
-# Initialize Pyrogram Client
-app = Client("my_bot", api_id="21705536", api_hash="c5bb241f6e3ecf33fe68a444e288de2d", bot_token="8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4")
-
-# Start Command Handler
+# Command handler for /start
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply_text("Welcome! Please upload a .txt file.")
+    await message.reply_text("Welcome! Please upload a .txt file containing URLs.")
 
-# File Handler
+# Message handler for file uploads
 @app.on_message(filters.document)
 async def handle_file(client: Client, message: Message):
+    # Check if the file is a .txt file
     if not message.document.file_name.endswith(".txt"):
         await message.reply_text("Please upload a .txt file.")
         return
 
     # Download the file
     file_path = await message.download()
+    file_name = message.document.file_name
+
+    # Read the file content
     with open(file_path, "r") as f:
-        text = f.read()
+        file_content = f.read()
 
-    # Process the file
-    urls, names = extract_urls_and_names(text)
-    videos, pdfs, others = categorize_urls(urls, names)
-    html_filename = generate_html_file(message.document.file_name, videos, pdfs, others)
+    # Extract names and URLs
+    urls = extract_names_and_urls(file_content)
 
-    # Send the HTML file back to the user
-    await message.reply_document(document=html_filename)
+    # Categorize URLs
+    videos, pdfs, others = categorize_urls(urls)
+
+    # Generate HTML
+    html_content = generate_html(file_name, videos, pdfs, others)
+    html_file_path = file_path.replace(".txt", ".html")
+    with open(html_file_path, "w") as f:
+        f.write(html_content)
+
+    # Send the HTML file to the user
+    await message.reply_document(document=html_file_path, caption="Here is your generated HTML file!")
 
     # Clean up files
     os.remove(file_path)
-    os.remove(html_filename)
+    os.remove(html_file_path)
 
 # Run the bot
 if __name__ == "__main__":
+    print("Bot is running...")
     app.run()
