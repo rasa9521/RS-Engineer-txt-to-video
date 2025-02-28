@@ -1,5 +1,5 @@
 import os
-import re
+import requests
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
@@ -16,12 +16,12 @@ app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # Function to extract names and URLs from the text file
 def extract_names_and_urls(file_content):
-    lines = file_content.strip().split("\n")  # Split content into lines
+    lines = file_content.strip().split("\n")
     data = []
     for line in lines:
-        if ":" in line:  # Check if the line contains a separator
-            name, url = line.split(":", 1)  # Split into name and URL
-            data.append((name.strip(), url.strip()))  # Remove extra spaces
+        if ":" in line:
+            name, url = line.split(":", 1)
+            data.append((name.strip(), url.strip()))
     return data
 
 # Function to categorize URLs
@@ -31,21 +31,21 @@ def categorize_urls(urls):
     others = []
 
     for name, url in urls:
+        new_url = url
         if "media-cdn.classplusapp.com/drm/" in url or "cpvod.testbook" in url:
             new_url = f"https://dragoapi.vercel.app/video/{url}"
             videos.append((name, new_url))
-
-        if "/master.mpd" in url:
+        elif "/master.mpd" in url:
             vid_id = url.split("/")[-2]
             new_url = f"https://player.muftukmall.site/?id={vid_id}"
             videos.append((name, new_url))
-
-        elif 'videos.classplusapp' in url or "tencdn.classplusapp" in url or "webvideos.classplusapp.com" in url or "media-cdn-alisg.classplusapp.com" in url or "videos.classplusapp" in url or "videos.classplusapp.com" in url or "media-cdn-a.classplusapp" in url or "media-cdn.classplusapp" in url or "alisg-cdn-a.classplusapp" in url:
-             url = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': 'eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9yZ0lkIjo0ODA2MTksImNhdGVnb3J5SWQiOm51bGx9r'}).json()['url']
-            
-        if ".m3u8" in url:
+        elif any(substring in url for substring in ["videos.classplusapp", "tencdn.classplusapp", "webvideos.classplusapp.com", "media-cdn-alisg.classplusapp.com", "media-cdn-a.classplusapp", "alisg-cdn-a.classplusapp"]):
+            response = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': 'eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9yZ0lkIjo0ODA2MTksImNhdGVnb3J5SWQiOm51bGx9r'})
+            if response.status_code == 200:
+                new_url = response.json().get('url', url)
+            videos.append((name, new_url))
+        elif ".m3u8" in url:
             videos.append((name, url))
-            
         elif "pdf" in url:
             pdfs.append((name, url))
         else:
@@ -55,14 +55,12 @@ def categorize_urls(urls):
 
 # Function to generate HTML file with Video.js player and download feature
 def generate_html(file_name, videos, pdfs, others):
-    # Remove file extension from file_name
     file_name_without_extension = os.path.splitext(file_name)[0]
-    
+
     video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
     pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)
     other_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)
 
-    # Use raw string (r"") for the HTML template to avoid backslash issues
     html_template = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -71,7 +69,6 @@ def generate_html(file_name, videos, pdfs, others):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{file_name_without_extension}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- Video.js CSS -->
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }}
@@ -102,15 +99,12 @@ def generate_html(file_name, videos, pdfs, others):
     <div class="header">{file_name_without_extension}</div>
     <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
 
-    <!-- Search Bar -->
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
     </div>
 
-    <!-- No Results Message -->
     <div id="noResults" class="no-results">No results found.</div>
 
-    <!-- Video.js Player -->
     <div id="video-player">
         <video id="engineer-babu-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
             <p class="vjs-no-js">
@@ -153,10 +147,8 @@ def generate_html(file_name, videos, pdfs, others):
 
     <div class="footer">Extracted By - <a href="https://t.me/Engineers_Babu" target="_blank">Engineer Babu</a></div>
 
-    <!-- Video.js Script -->
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
-        // Initialize Video.js player
         const player = videojs('engineer-babu-player', {{
             controls: true,
             autoplay: false,
@@ -164,23 +156,17 @@ def generate_html(file_name, videos, pdfs, others):
             fluid: true,
         }});
 
-        // Function to play .m3u8 videos
         function playVideo(url) {{
             if (url.includes('.m3u8')) {{
-                // Show the video player
                 document.getElementById('video-player').style.display = 'block';
-                // Set the video source
                 player.src({{ src: url, type: 'application/x-mpegURL' }});
                 player.play();
-                // Set download link
                 document.getElementById('download-link').href = url;
             }} else {{
-                // Open non-.m3u8 links in a new tab
                 window.open(url, '_blank');
             }}
         }}
 
-        // Function to show/hide content based on tab selection
         function showContent(tabName) {{
             const contents = document.querySelectorAll('.content');
             contents.forEach(content => {{
@@ -190,11 +176,9 @@ def generate_html(file_name, videos, pdfs, others):
             if (selectedContent) {{
                 selectedContent.style.display = 'block';
             }}
-            // Trigger search again when switching tabs
             filterContent();
         }}
 
-        // Function to filter content based on search input
         function filterContent() {{
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categories = ['videos', 'pdfs', 'others'];
@@ -215,21 +199,18 @@ def generate_html(file_name, videos, pdfs, others):
                     }}
                 }});
 
-                // Show/hide the category heading based on results
                 const categoryHeading = document.querySelector(`#${{category}} h2`);
                 if (categoryHeading) {{
                     categoryHeading.style.display = categoryHasResults ? 'block' : 'none';
                 }}
             }});
 
-            // Show/hide the "No results found" message
             const noResultsMessage = document.getElementById('noResults');
             if (noResultsMessage) {{
                 noResultsMessage.style.display = hasResults ? 'none' : 'block';
             }}
         }}
 
-        // Show videos tab by default
         document.addEventListener('DOMContentLoaded', () => {{
             showContent('videos');
         }});
@@ -237,7 +218,6 @@ def generate_html(file_name, videos, pdfs, others):
 </body>
 </html>
     """
-    
     return html_template
 
 # Command handler for /start
