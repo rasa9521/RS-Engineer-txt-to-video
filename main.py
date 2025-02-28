@@ -39,11 +39,7 @@ def categorize_urls(urls):
             vid_id = url.split("/")[-2]
             new_url = f"https://player.muftukmall.site/?id={vid_id}"
             videos.append((name, new_url))
-        elif any(substring in url for substring in ["videos.classplusapp", "tencdn.classplusapp", "webvideos.classplusapp.com", "media-cdn-alisg.classplusapp.com", "media-cdn-a.classplusapp", "alisg-cdn-a.classplusapp"]):
-            response = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': 'eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9yZ0lkIjo0ODA2MTksImNhdGVnb3J5SWQiOm51bGx9r'})
-            if response.status_code == 200:
-                new_url = response.json().get('url', url)
-            videos.append((name, new_url))
+        
         elif ".m3u8" in url:
             videos.append((name, url))
         elif "pdf" in url:
@@ -160,7 +156,9 @@ def generate_html(file_name, videos, pdfs, others):
             if (url.includes('.m3u8')) {{
                 document.getElementById('video-player').style.display = 'block';
                 player.src({{ src: url, type: 'application/x-mpegURL' }});
-                player.play();
+                player.play().catch(() => {{
+                    window.open(url, '_blank');
+                }});
                 document.getElementById('download-link').href = url;
             }} else {{
                 window.open(url, '_blank');
