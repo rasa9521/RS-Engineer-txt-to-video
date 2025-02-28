@@ -67,7 +67,7 @@ def generate_html(file_name, videos, pdfs, others):
         .tab:hover {{ background: #007bff; color: white; }}
         .content {{ display: none; margin-top: 20px; }}
         .active {{ display: block; }}
-        .footer {{ margin-top: 30px; font-size: 18px; font-weight: bold; padding: 15px; background: #007bff; color: white; border-radius: 10px; }}
+        .footer {{ margin-top: 30px; font-size: 18px; font-weight: bold; padding: 15px; background: #1c1c1c; color: white; border-radius: 10px; }}
         .footer a {{ color: #ffeb3b; text-decoration: none; font-weight: bold; }}
         .video-list, .pdf-list, .other-list {{ text-align: left; max-width: 600px; margin: auto; }}
         .video-list a, .pdf-list a, .other-list a {{ display: block; padding: 10px; background: #fff; margin: 5px 0; border-radius: 5px; text-decoration: none; color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
