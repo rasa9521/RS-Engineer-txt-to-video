@@ -35,6 +35,10 @@ def categorize_urls(urls):
         if "/master.mpd" in url:
             vid_id =  url.split("/")[-2]
             new_url = f"https://player.muftukmall.site/?id={vid_id}"
+            videos.append((name, new_url))
+
+        if ".m3u8" in url:
+            videos.append((name, url))
             
         elif "pdf" in url:
             pdfs.append((name, url))
