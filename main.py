@@ -126,21 +126,21 @@ def generate_html(file_name, videos, pdfs, others):
     <div id="videos" class="content">
         <h2>All Video Lectures</h2>
         <div class="video-list">
-            {"".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)}
+            {video_links}
         </div>
     </div>
 
     <div id="pdfs" class="content">
         <h2>All PDFs</h2>
         <div class="pdf-list">
-            {"".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)}
+            {pdf_links}
         </div>
     </div>
 
     <div id="others" class="content">
         <h2>Other Resources</h2>
         <div class="other-list">
-            {"".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)}
+            {other_links}
         </div>
     </div>
 
@@ -231,7 +231,11 @@ def generate_html(file_name, videos, pdfs, others):
 </html>
     """
     
-    return html_template
+    video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
+    pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)
+    other_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)
+
+    return html_template.format(video_links=video_links, pdf_links=pdf_links, other_links=other_links)
 
 # Command handler for /start
 @app.on_message(filters.command("start"))
