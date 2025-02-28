@@ -55,7 +55,8 @@ def generate_html(file_name, videos, pdfs, others):
     # Remove file extension from file_name
     file_name_without_extension = os.path.splitext(file_name)[0]
 
-    html_template = f"""
+    # Use a raw string (r"""...""") to avoid issues with backslashes
+    html_template = rf"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
