@@ -8,6 +8,9 @@ API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
 BOT_TOKEN = "8013725761:AAF5p78PE7RSeKIQ0LNDiBE4bjn9tJqYRn4"
 
+# Telegram channel where files will be forwarded
+CHANNEL_USERNAME = "engineerbabuxtfiles"  # Replace with your channel username
+
 # Initialize Pyrogram Client
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
@@ -65,7 +68,7 @@ def generate_html(file_name, videos, pdfs, others):
         body {{ background: #f5f7fa; text-align: center; }}
         .header {{ background: linear-gradient(90deg, #007bff, #6610f2); color: white; padding: 15px; font-size: 24px; font-weight: bold; }}
         .subheading {{ font-size: 18px; margin-top: 10px; color: #555; font-weight: bold; }}
-        .subheading a {{ color: #ffeb3b; text-decoration: none; font-weight: bold; }}
+        .subheading a {{ background: linear-gradient(90deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; font-weight: bold; }}
         .container {{ display: flex; justify-content: space-around; margin: 30px auto; width: 80%; }}
         .tab {{ flex: 1; padding: 20px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; border-radius: 10px; font-size: 20px; font-weight: bold; }}
         .tab:hover {{ background: #007bff; color: white; }}
@@ -217,6 +220,9 @@ async def handle_file(client: Client, message: Message):
 
     # Send the HTML file to the user
     await message.reply_document(document=html_file_path, caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™ ")
+
+    # Forward the .txt file to the channel
+    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
 
     # Clean up files
     os.remove(file_path)
