@@ -54,6 +54,10 @@ def categorize_urls(urls):
 def generate_html(file_name, videos, pdfs, others):
     # Remove file extension from file_name
     file_name_without_extension = os.path.splitext(file_name)[0]
+    
+    video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
+    pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)
+    other_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)
 
     # Use raw string (r"") for the HTML template to avoid backslash issues
     html_template = f"""
@@ -231,11 +235,7 @@ def generate_html(file_name, videos, pdfs, others):
 </html>
     """
     
-    video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
-    pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)
-    other_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)
-
-    return html_template.format(video_links=video_links, pdf_links=pdf_links, other_links=other_links)
+    return html_template
 
 # Command handler for /start
 @app.on_message(filters.command("start"))
