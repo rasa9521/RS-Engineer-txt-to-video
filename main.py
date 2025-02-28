@@ -51,7 +51,7 @@ def categorize_urls(urls):
 
     return videos, pdfs, others
 
-# Function to generate HTML file with search functionality
+# Function to generate HTML file with Video.js player and download feature
 def generate_html(file_name, videos, pdfs, others):
     # Remove file extension from file_name
     file_name_without_extension = os.path.splitext(file_name)[0]
@@ -64,6 +64,8 @@ def generate_html(file_name, videos, pdfs, others):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{file_name_without_extension}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Video.js CSS -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }}
         body {{ background: #f5f7fa; text-align: center; }}
@@ -83,6 +85,10 @@ def generate_html(file_name, videos, pdfs, others):
         .search-bar {{ margin: 20px auto; width: 80%; max-width: 600px; }}
         .search-bar input {{ width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 5px; font-size: 16px; }}
         .no-results {{ color: red; font-weight: bold; margin-top: 20px; display: none; }}
+        #video-player {{ display: none; margin: 20px auto; width: 80%; max-width: 800px; }}
+        .download-button {{ margin-top: 10px; text-align: center; }}
+        .download-button a {{ background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }}
+        .download-button a:hover {{ background: #0056b3; }}
     </style>
 </head>
 <body>
@@ -97,6 +103,20 @@ def generate_html(file_name, videos, pdfs, others):
     <!-- No Results Message -->
     <div id="noResults" class="no-results">No results found.</div>
 
+    <!-- Video.js Player -->
+    <div id="video-player">
+        <video id="engineer-babu-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
+            <p class="vjs-no-js">
+                To view this video please enable JavaScript, and consider upgrading to a web browser that
+                <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+            </p>
+        </video>
+        <div class="download-button">
+            <a id="download-link" href="#" download>Download Video</a>
+        </div>
+        <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #007bff;">Engineer Babu Player</div>
+    </div>
+
     <div class="container">
         <div class="tab" onclick="showContent('videos')">Videos</div>
         <div class="tab" onclick="showContent('pdfs')">PDFs</div>
@@ -106,7 +126,7 @@ def generate_html(file_name, videos, pdfs, others):
     <div id="videos" class="content">
         <h2>All Video Lectures</h2>
         <div class="video-list">
-            {"".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in videos)}
+            {"".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)}
         </div>
     </div>
 
@@ -126,7 +146,33 @@ def generate_html(file_name, videos, pdfs, others):
 
     <div class="footer">Extracted By - <a href="https://t.me/Engineers_Babu" target="_blank">Engineer Babu</a></div>
 
+    <!-- Video.js Script -->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
+        // Initialize Video.js player
+        const player = videojs('engineer-babu-player', {{
+            controls: true,
+            autoplay: false,
+            preload: 'auto',
+            fluid: true,
+        }});
+
+        // Function to play .m3u8 videos
+        function playVideo(url) {{
+            if (url.includes('.m3u8')) {{
+                // Show the video player
+                document.getElementById('video-player').style.display = 'block';
+                // Set the video source
+                player.src({{ src: url, type: 'application/x-mpegURL' }});
+                player.play();
+                // Set download link
+                document.getElementById('download-link').href = url;
+            }} else {{
+                // Open non-.m3u8 links in a new tab
+                window.open(url, '_blank');
+            }}
+        }}
+
         // Function to show/hide content based on tab selection
         function showContent(tabName) {{
             const contents = document.querySelectorAll('.content');
