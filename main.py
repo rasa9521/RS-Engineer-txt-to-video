@@ -54,8 +54,8 @@ def generate_html(file_name, videos, pdfs, others):
     # Remove file extension from file_name
     file_name_without_extension = os.path.splitext(file_name)[0]
 
-    # Use double backslashes (\\) to escape backslashes in the HTML template
-    html_template = f"""
+    # Use raw string (r"") for the HTML template to avoid backslash issues
+    html_template = rf"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,7 +125,7 @@ def generate_html(file_name, videos, pdfs, others):
     <div id="videos" class="content">
         <h2>All Video Lectures</h2>
         <div class="video-list">
-            {"".join(f'<a href="#" onclick="playVideo(\\'{url}\\')">{name}</a>' for name, url in videos)}
+            {"".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)}
         </div>
     </div>
 
