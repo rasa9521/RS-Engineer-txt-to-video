@@ -229,6 +229,7 @@ def generate_html(file_name, videos, pdfs, others):
 </body>
 </html>
     """
+    
     return html_template
 
 # Command handler for /start
