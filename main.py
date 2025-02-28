@@ -31,6 +31,11 @@ def categorize_urls(urls):
         if "media-cdn.classplusapp.com/drm/" in url or "cpvod.testbook" in url:
             new_url = f"https://dragoapi.vercel.app/video/{url}"
             videos.append((name, new_url))
+
+        if "/master.mpd" in url:
+            vid_id =  url.split("/")[-2]
+            new_url = f"https://player.muftukmall.site/?id={vid_id}"
+            
         elif "pdf" in url:
             pdfs.append((name, url))
         else:
