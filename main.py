@@ -1,5 +1,4 @@
 import os
-import re
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
@@ -41,7 +40,8 @@ def categorize_urls(urls):
             videos.append((name, new_url))
             
         if ".m3u8" in url:
-            videos.append((name, url))
+            new_url = f"https://m3u8play.dev/?url={url}"
+            videos.append((name, new_url))
             
         elif "pdf" in url:
             pdfs.append((name, url))
