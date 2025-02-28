@@ -130,7 +130,7 @@ def generate_html(file_name, videos, pdfs, others):
 # Command handler for /start
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply_text("Welcome! Please upload a .txt file containing URLs.")
+    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬.")
 
 # Message handler for file uploads
 @app.on_message(filters.document)
@@ -161,7 +161,7 @@ async def handle_file(client: Client, message: Message):
         f.write(html_content)
 
     # Send the HTML file to the user
-    await message.reply_document(document=html_file_path, caption="Here is your generated HTML file!")
+    await message.reply_document(document=html_file_path, caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™ ")
 
     # Clean up files
     os.remove(file_path)
