@@ -1,12 +1,11 @@
 import os
-import requests
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
 # Replace with your API ID, API Hash, and Bot Token
 API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
-BOT_TOKEN = "8013725761:AAGQyr32ibk7HQNqxv4FSD2ZrrSLOmzknlg"
+BOT_TOKEN = "7286340326:AAEyXhzyOYarXiv5wHMpm0Z1VEHujcOdNk0"
 
 # Telegram channel where files will be forwarded
 CHANNEL_USERNAME = "engineerbabuxtfiles"  # Replace with your channel username
@@ -19,9 +18,11 @@ def extract_names_and_urls(file_content):
     lines = file_content.strip().split("\n")
     data = []
     for line in lines:
-        if ":" in line:
-            name, url = line.split(":", 1)
-            data.append((name.strip(), url.strip()))
+        if ": https" in line:
+            # Split at ": https" to separate name and URL
+            name, url = line.split(": https", 1)
+            # Reconstruct the URL with "https"
+            data.append((name.strip(), "https" + url.strip()))
     return data
 
 # Function to categorize URLs
@@ -31,22 +32,14 @@ def categorize_urls(urls):
     others = []
 
     for name, url in urls:
-        new_url = url
-        if "media-cdn.classplusapp.com/drm/" in url or "cpvod.testbook" in url:
-            new_url = f"https://dragoapi.vercel.app/video/{url}"
-            videos.append((name, new_url))
-        elif "/master.mpd" in url:
-            vid_id = url.split("/")[-2]
-            new_url = f"https://player.muftukmall.site/?id={vid_id}"
-            videos.append((name, new_url))
-
-        elif "youtube.com/embed" in url:
+        if "youtube.com/embed" in url:
+            # Extract YouTube video ID and convert to watch URL
             yt_id = url.split("/")[-1]
             new_url = f"https://www.youtube.com/watch?v={yt_id}"
-            
-        elif ".m3u8" in url:
+            videos.append((name, new_url))
+        elif ".m3u8" in url or "master.mpd" in url:
             videos.append((name, url))
-        elif "pdf" in url:
+        elif "pdf" in url.lower():
             pdfs.append((name, url))
         else:
             others.append((name, url))
