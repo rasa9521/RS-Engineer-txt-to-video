@@ -1,6 +1,4 @@
 import os
-import requests
-import subprocess
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
@@ -32,7 +30,6 @@ def categorize_urls(urls):
     others = []
 
     for name, url in urls:
-        new_url = url
         if "media-cdn.classplusapp.com/drm/" in url or "cpvod.testbook" in url:
             new_url = f"https://dragoapi.vercel.app/video/{url}"
             videos.append((name, new_url))
@@ -46,10 +43,7 @@ def categorize_urls(urls):
             videos.append((name, new_url))
         elif ".m3u8" in url:
             videos.append((name, url))
-        elif "pdf*" in url:
-            new_url = f"https://dragoapi.vercel.app/pdf/{url}"
-            pdfs.append((name, new_url))
-        elif "pdf" in url:
+        elif "pdf" in url.lower():
             pdfs.append((name, url))
         else:
             others.append((name, url))
@@ -60,9 +54,9 @@ def categorize_urls(urls):
 def generate_html(file_name, videos, pdfs, others):
     file_name_without_extension = os.path.splitext(file_name)[0]
 
-    video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
-    pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in pdfs)
-    other_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)
+    video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a><br>' for name, url in videos)
+    pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a><br>' for name, url in pdfs)
+    other_links = "".join(f'<a href="{url}" target="_blank">{name}</a><br>' for name, url in others)
 
     html_template = f"""
 <!DOCTYPE html>
@@ -71,16 +65,31 @@ def generate_html(file_name, videos, pdfs, others):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{file_name_without_extension}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
-        /* Add your CSS styles here */
+        body {{ font-family: Arial, sans-serif; padding: 20px; }}
+        .tab {{ cursor: pointer; padding: 10px; background: #f0f0f0; margin: 5px; }}
+        .content {{ display: none; padding: 10px; border: 1px solid #ccc; }}
+        .active {{ display: block; }}
     </style>
 </head>
 <body>
-    <div class="header">
-        {file_name_without_extension}
-        <div class="subheading">📥 Extracted By: <a href="https://t.me/Engineers_Babu" target="_blank">Engineers Babu™</a></div>
+    <h1>{file_name_without_extension}</h1>
+    <div class="tab" onclick="showContent('videos')">Videos</div>
+    <div class="tab" onclick="showContent('pdfs')">PDFs</div>
+    <div class="tab" onclick="showContent('others')">Others</div>
+
+    <div id="videos" class="content">
+        <h2>Video Lectures</h2>
+        {video_links}
+    </div>
+    <div id="pdfs" class="content">
+        <h2>PDFs</h2>
+        {pdf_links}
+    </div>
+    <div id="others" class="content">
+        <h2>Other Resources</h2>
+        {other_links}
     </div>
 
     <div id="video-player">
@@ -92,165 +101,43 @@ def generate_html(file_name, videos, pdfs, others):
         </video>
     </div>
 
-    <div id="url-input-container">
-        <input type="text" id="url-input" placeholder="Enter video URL to play...">
-        <button onclick="playCustomUrl()">Play</button>
-    </div>
-
-    <button onclick="toggleUrlInput()" style="margin: 20px auto; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; display: block; width: 90%; max-width: 600px;">Enter Custom URL</button>
-
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
-    </div>
-
-    <div id="noResults" class="no-results">No results found.</div>
-
-    <div class="container">
-        <div class="tab" onclick="showContent('videos')">Videos</div>
-        <div class="tab" onclick="showContent('pdfs')">PDFs</div>
-        <div class="tab" onclick="showContent('others')">Others</div>
-    </div>
-
-    <div id="videos" class="content">
-        <h2>All Video Lectures</h2>
-        <div class="video-list">
-            {video_links}
-        </div>
-    </div>
-
-    <div id="pdfs" class="content">
-        <h2>All PDFs</h2>
-        <div class="pdf-list">
-            {pdf_links}
-        </div>
-    </div>
-
-    <div id="others" class="content">
-        <h2>Other Resources</h2>
-        <div class="other-list">
-            {other_links}
-        </div>
-    </div>
-
-    <div class="footer">Extracted By - <a href="https://t.me/Engineers_Babu" target="_blank">Engineers Babu</a></div>
-
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
         const player = videojs('engineer-babu-player', {{
             controls: true,
             autoplay: false,
             preload: 'auto',
-            fluid: true,
-            controlBar: {{
-                children: [
-                    'playToggle',
-                    'volumePanel',
-                    'currentTimeDisplay',
-                    'timeDivider',
-                    'durationDisplay',
-                    'progressControl',
-                    'liveDisplay',
-                    'remainingTimeDisplay',
-                    'customControlSpacer',
-                    'playbackRateMenuButton',
-                    'chaptersButton',
-                    'descriptionsButton',
-                    'subsCapsButton',
-                    'audioTrackButton',
-                    'fullscreenToggle'
-                ]
-            }}
+            fluid: true
         }});
 
         function playVideo(url) {{
             if (url.includes('.m3u8')) {{
                 document.getElementById('video-player').style.display = 'block';
                 player.src({{ src: url, type: 'application/x-mpegURL' }});
-                player.play().catch(() => {{
-                    window.open(url, '_blank');
-                }});
+                player.play();
             }} else {{
                 window.open(url, '_blank');
             }}
         }}
 
-        function toggleUrlInput() {{
-            const urlInputContainer = document.getElementById('url-input-container');
-            urlInputContainer.style.display = urlInputContainer.style.display === 'none' ? 'block' : 'none';
-        }}
-
-        function playCustomUrl() {{
-            const url = document.getElementById('url-input').value;
-            if (url) {{
-                playVideo(url);
-            }}
-        }}
-
         function showContent(tabName) {{
             const contents = document.querySelectorAll('.content');
-            contents.forEach(content => {{
-                content.style.display = 'none';
-            }});
-            const selectedContent = document.getElementById(tabName);
-            if (selectedContent) {{
-                selectedContent.style.display = 'block';
-            }}
-            filterContent();
+            contents.forEach(content => content.style.display = 'none');
+            document.getElementById(tabName).style.display = 'block';
         }}
 
-        function filterContent() {{
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const categories = ['videos', 'pdfs', 'others'];
-            let hasResults = false;
-
-            categories.forEach(category => {{
-                const items = document.querySelectorAll(`#${{category}} .${{category}}-list a`);
-                let categoryHasResults = false;
-
-                items.forEach(item => {{
-                    const itemText = item.textContent.toLowerCase();
-                    if (itemText.includes(searchTerm)) {{
-                        item.style.display = 'block';
-                        categoryHasResults = true;
-                        hasResults = true;
-                    }} else {{
-                        item.style.display = 'none';
-                    }}
-                }});
-
-                const categoryHeading = document.querySelector(`#${{category}} h2`);
-                if (categoryHeading) {{
-                    categoryHeading.style.display = categoryHasResults ? 'block' : 'none';
-                }}
-            }});
-
-            const noResultsMessage = document.getElementById('noResults');
-            if (noResultsMessage) {{
-                noResultsMessage.style.display = hasResults ? 'none' : 'block';
-            }}
-        }}
-
-        document.addEventListener('DOMContentLoaded', () => {{
-            showContent('videos');
-        }});
+        // Show videos tab by default
+        showContent('videos');
     </script>
 </body>
 </html>
     """
     return html_template
 
-# Function to download video using FFmpeg
-def download_video(url, output_path):
-    try:
-        command = f"ffmpeg -i {url} -c copy {output_path}"
-        subprocess.run(command, shell=True, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error downloading video: {e}")
-
 # Command handler for /start
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬.")
+    await message.reply_text("Welcome! Please upload a .txt file containing URLs.")
 
 # Message handler for file uploads
 @app.on_message(filters.document)
@@ -281,12 +168,10 @@ async def handle_file(client: Client, message: Message):
         with open(html_file_path, "w") as f:
             f.write(html_content)
 
-        # Send the HTML file to the user with a thumbnail
-        thumbnail_url = "https://github.com/indianup/Engineer-txt-to-video/blob/main/Github/img/10.jpg"
+        # Send the HTML file to the user
         await message.reply_document(
             document=html_file_path,
-            caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™",
-            thumb=thumbnail_url,
+            caption="✅ Successfully processed your file!\n\n📥 Extracted By: Engineers Babu™"
         )
 
         # Forward the .txt file to the channel
