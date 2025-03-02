@@ -1,11 +1,13 @@
 import os
+import requests
+import subprocess
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
 # Replace with your API ID, API Hash, and Bot Token
 API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
-BOT_TOKEN = "7286340326:AAEyXhzyOYarXiv5wHMpm0Z1VEHujcOdNk0"
+BOT_TOKEN = "8013725761:AAGQyr32ibk7HQNqxv4FSD2ZrrSLOmzknlg"
 
 # Telegram channel where files will be forwarded
 CHANNEL_USERNAME = "engineerbabuxtfiles"  # Replace with your channel username
@@ -18,11 +20,9 @@ def extract_names_and_urls(file_content):
     lines = file_content.strip().split("\n")
     data = []
     for line in lines:
-        if ": https" in line:
-            # Split at ": https" to separate name and URL
-            name, url = line.split(": https", 1)
-            # Reconstruct the URL with "https"
-            data.append((name.strip(), "https" + url.strip()))
+        if ":" in line:
+            name, url = line.split(":", 1)
+            data.append((name.strip(), url.strip()))
     return data
 
 # Function to categorize URLs
@@ -32,14 +32,22 @@ def categorize_urls(urls):
     others = []
 
     for name, url in urls:
-        if "youtube.com/embed" in url:
-            # Extract YouTube video ID and convert to watch URL
+        new_url = url
+        if "media-cdn.classplusapp.com/drm/" in url or "cpvod.testbook" in url:
+            new_url = f"https://dragoapi.vercel.app/video/{url}"
+            videos.append((name, new_url))
+        elif "/master.mpd" in url:
+            vid_id = url.split("/")[-2]
+            new_url = f"https://player.muftukmall.site/?id={vid_id}"
+            videos.append((name, new_url))
+
+        elif "youtube.com/embed" in url:
             yt_id = url.split("/")[-1]
             new_url = f"https://www.youtube.com/watch?v={yt_id}"
-            videos.append((name, new_url))
-        elif ".m3u8" in url or "master.mpd" in url:
+            
+        elif ".m3u8" in url:
             videos.append((name, url))
-        elif "pdf" in url.lower():
+        elif "pdf" in url:
             pdfs.append((name, url))
         else:
             others.append((name, url))
@@ -64,39 +72,227 @@ def generate_html(file_name, videos, pdfs, others):
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
-        * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }}
-        body {{ background: #f5f7fa; text-align: center; }}
-        .header {{ background: linear-gradient(90deg, #007bff, #6610f2); color: white; padding: 15px; font-size: 24px; font-weight: bold; }}
-        .subheading {{ font-size: 18px; margin-top: 10px; color: #555; font-weight: bold; }}
-        .subheading a {{ background: linear-gradient(90deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; font-weight: bold; }}
-        .container {{ display: flex; justify-content: space-around; margin: 30px auto; width: 80%; }}
-        .tab {{ flex: 1; padding: 20px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; border-radius: 10px; font-size: 20px; font-weight: bold; }}
-        .tab:hover {{ background: #007bff; color: white; }}
-        .content {{ display: none; margin-top: 20px; }}
-        .active {{ display: block; }}
-        .footer {{ margin-top: 30px; font-size: 18px; font-weight: bold; padding: 15px; background: #1c1c1c; color: white; border-radius: 10px; }}
-        .footer a {{ color: #ffeb3b; text-decoration: none; font-weight: bold; }}
-        .video-list, .pdf-list, .other-list {{ text-align: left; max-width: 600px; margin: auto; }}
-        .video-list a, .pdf-list a, .other-list a {{ display: block; padding: 10px; background: #fff; margin: 5px 0; border-radius: 5px; text-decoration: none; color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
-        .video-list a:hover, .pdf-list a:hover, .other-list a:hover {{ background: #007bff; color: white; }}
-        .search-bar {{ margin: 20px auto; width: 80%; max-width: 600px; }}
-        .search-bar input {{ width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 5px; font-size: 16px; }}
-        .no-results {{ color: red; font-weight: bold; margin-top: 20px; display: none; }}
-        #video-player {{ display: none; margin: 20px auto; width: 80%; max-width: 800px; }}
-        .download-button {{ margin-top: 10px; text-align: center; }}
-        .download-button a {{ background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }}
-        .download-button a:hover {{ background: #0056b3; }}
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }}
+
+        body {{
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }}
+
+        .header {{
+            background: linear-gradient(90deg, #007bff, #6610f2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }}
+
+        .subheading {{
+            font-size: 18px;
+            margin-top: 10px;
+            color: #fff;
+            font-weight: bold;
+        }}
+
+        .subheading a {{
+            color: #ffeb3b;
+            text-decoration: none;
+            font-weight: bold;
+        }}
+
+        .thumbnail {{
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }}
+
+        #video-player {{
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }}
+
+        .download-button {{
+            margin-top: 10px;
+            text-align: center;
+        }}
+
+        .download-button a {{
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }}
+
+        .download-button a:hover {{
+            background: #0056b3;
+        }}
+
+        #url-input-container {{
+            display: none;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }}
+
+        #url-input-container input {{
+            width: 70%;
+            padding: 10px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-right: 10px;
+        }}
+
+        #url-input-container button {{
+            width: 25%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }}
+
+        #url-input-container button:hover {{
+            background: #0056b3;
+        }}
+
+        .search-bar {{
+            margin: 20px auto;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }}
+
+        .search-bar input {{
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            font-size: 16px;
+        }}
+
+        .no-results {{
+            color: red;
+            font-weight: bold;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }}
+
+        .container {{
+            display: flex;
+            justify-content: space-around;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+        }}
+
+        .tab {{
+            flex: 1;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin: 0 5px;
+        }}
+
+        .tab:hover {{
+            background: #007bff;
+            color: white;
+            transform: translateY(-5px);
+        }}
+
+        .content {{
+            display: none;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }}
+
+        .content h2 {{
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #007bff;
+        }}
+
+        .video-list, .pdf-list, .other-list {{
+            text-align: left;
+        }}
+
+        .video-list a, .pdf-list a, .other-list a {{
+            display: block;
+            padding: 10px;
+            background: #f5f7fa;
+            margin: 5px 0;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }}
+
+        .video-list a:hover, .pdf-list a:hover, .other-list a:hover {{
+            background: #007bff;
+            color: white;
+            transform: translateX(10px);
+        }}
+
+        .footer {{
+            margin-top: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 15px;
+            background: #1c1c1c;
+            color: white;
+            text-align: center;
+            border-radius: 10px;
+        }}
+
+        .footer a {{
+            color: #ffeb3b;
+            text-decoration: none;
+            font-weight: bold;
+        }}
     </style>
 </head>
 <body>
-    <div class="header">{file_name_without_extension}</div>
-    <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
-
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
+    <div class="header">
+        {file_name_without_extension}
+        <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
     </div>
 
-    <div id="noResults" class="no-results">No results found.</div>
+    <!-- Thumbnail Image -->
+    <img src="https://i.postimg.cc/c1YLVMTD/DALL-E-2025-03-01-21-00-09-An-artistic-digital-image-featuring-the-text-HTML-Developer-Bot-and.webp" alt="HTML Developer Bot Thumbnail" class="thumbnail">
 
     <div id="video-player">
         <video id="engineer-babu-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
@@ -110,6 +306,19 @@ def generate_html(file_name, videos, pdfs, others):
         </div>
         <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #007bff;">Engineer Babu Player</div>
     </div>
+
+    <div id="url-input-container">
+        <input type="text" id="url-input" placeholder="Enter video URL to play...">
+        <button onclick="playCustomUrl()">Play</button>
+    </div>
+
+    <button onclick="toggleUrlInput()" style="margin: 20px auto; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; display: block; width: 90%; max-width: 600px;">Enter Custom URL</button>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
+    </div>
+
+    <div id="noResults" class="no-results">No results found.</div>
 
     <div class="container">
         <div class="tab" onclick="showContent('videos')">Videos</div>
@@ -147,6 +356,37 @@ def generate_html(file_name, videos, pdfs, others):
             autoplay: false,
             preload: 'auto',
             fluid: true,
+            controlBar: {{
+                children: [
+                    'playToggle',
+                    'volumePanel',
+                    'currentTimeDisplay',
+                    'timeDivider',
+                    'durationDisplay',
+                    'progressControl',
+                    'liveDisplay',
+                    'remainingTimeDisplay',
+                    'customControlSpacer',
+                    'playbackRateMenuButton',
+                    'chaptersButton',
+                    'descriptionsButton',
+                    'subsCapsButton',
+                    'audioTrackButton',
+                    'fullscreenToggle',
+                    {{
+                        name: 'qualitySelector',
+                        qualityData: {{}},
+                        getQuality: function() {{
+                            return this.qualityData;
+                        }},
+                        setQuality: function(quality) {{
+                            this.qualityData = quality;
+                            player.src(quality.src);
+                            player.play();
+                        }}
+                    }}
+                ]
+            }}
         }});
 
         function playVideo(url) {{
@@ -159,6 +399,18 @@ def generate_html(file_name, videos, pdfs, others):
                 document.getElementById('download-link').href = url;
             }} else {{
                 window.open(url, '_blank');
+            }}
+        }}
+
+        function toggleUrlInput() {{
+            const urlInputContainer = document.getElementById('url-input-container');
+            urlInputContainer.style.display = urlInputContainer.style.display === 'none' ? 'block' : 'none';
+        }}
+
+        function playCustomUrl() {{
+            const url = document.getElementById('url-input').value;
+            if (url) {{
+                playVideo(url);
             }}
         }}
 
@@ -214,6 +466,11 @@ def generate_html(file_name, videos, pdfs, others):
 </html>
     """
     return html_template
+
+# Function to download video using FFmpeg
+def download_video(url, output_path):
+    command = f"ffmpeg -i {url} -c copy {output_path}"
+    subprocess.run(command, shell=True, check=True)
 
 # Command handler for /start
 @app.on_message(filters.command("start"))
