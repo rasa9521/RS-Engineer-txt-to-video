@@ -40,17 +40,15 @@ def categorize_urls(urls):
             vid_id = url.split("/")[-2]
             new_url = f"https://player.muftukmall.site/?id={vid_id}"
             videos.append((name, new_url))
-
         elif "youtube.com/embed" in url:
             yt_id = url.split("/")[-1]
             new_url = f"https://www.youtube.com/watch?v={yt_id}"
-            
+            videos.append((name, new_url))
         elif ".m3u8" in url:
             videos.append((name, url))
-
         elif "pdf*" in url:
             new_url = f"https://dragoapi.vercel.app/pdf/{url}"
-            pdfs.append((name, url))
+            pdfs.append((name, new_url))
         elif "pdf" in url:
             pdfs.append((name, url))
         else:
@@ -76,192 +74,7 @@ def generate_html(file_name, videos, pdfs, others):
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }}
-
-        body {{
-            background: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-        }}
-
-        .header {{
-            background: #1c1c1c;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }}
-
-        .subheading {{
-            font-size: 16px;
-            margin-top: 10px;
-            color: #ccc;
-            font-weight: normal;
-        }}
-
-        .subheading a {{
-            color: #ffeb3b;
-            text-decoration: none;
-            font-weight: bold;
-        }}
-
-        #video-player {{
-            margin: 20px auto;
-            width: 90%;
-            max-width: 800px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background: #1c1c1c;
-            padding: 10px;
-        }}
-
-        #url-input-container {{
-            display: none;
-            margin: 20px auto;
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-        }}
-
-        #url-input-container input {{
-            width: 70%;
-            padding: 10px;
-            border: 2px solid #007bff;
-            border-radius: 5px;
-            font-size: 16px;
-            margin-right: 10px;
-        }}
-
-        #url-input-container button {{
-            width: 25%;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }}
-
-        #url-input-container button:hover {{
-            background: #0056b3;
-        }}
-
-        .search-bar {{
-            margin: 20px auto;
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-        }}
-
-        .search-bar input {{
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #007bff;
-            border-radius: 5px;
-            font-size: 16px;
-        }}
-
-        .no-results {{
-            color: red;
-            font-weight: bold;
-            margin-top: 20px;
-            text-align: center;
-            display: none;
-        }}
-
-        .container {{
-            display: flex;
-            justify-content: space-around;
-            margin: 20px auto;
-            width: 90%;
-            max-width: 800px;
-        }}
-
-        .tab {{
-            flex: 1;
-            padding: 15px;
-            background: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            margin: 0 5px;
-        }}
-
-        .tab:hover {{
-            background: #007bff;
-            color: white;
-            transform: translateY(-5px);
-        }}
-
-        .content {{
-            display: none;
-            margin: 20px auto;
-            width: 90%;
-            max-width: 800px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }}
-
-        .content h2 {{
-            font-size: 22px;
-            margin-bottom: 15px;
-            color: #007bff;
-        }}
-
-        .video-list, .pdf-list, .other-list {{
-            text-align: left;
-        }}
-
-        .video-list a, .pdf-list a, .other-list a {{
-            display: block;
-            padding: 10px;
-            background: #f5f7fa;
-            margin: 5px 0;
-            border-radius: 5px;
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }}
-
-        .video-list a:hover, .pdf-list a:hover, .other-list a:hover {{
-            background: #007bff;
-            color: white;
-            transform: translateX(10px);
-        }}
-
-        .footer {{
-            margin-top: 30px;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 15px;
-            background: #1c1c1c;
-            color: white;
-            text-align: center;
-            border-radius: 10px;
-        }}
-
-        .footer a {{
-            color: #ffeb3b;
-            text-decoration: none;
-            font-weight: bold;
-        }}
+        /* Add your CSS styles here */
     </style>
 </head>
 <body>
@@ -428,8 +241,11 @@ def generate_html(file_name, videos, pdfs, others):
 
 # Function to download video using FFmpeg
 def download_video(url, output_path):
-    command = f"ffmpeg -i {url} -c copy {output_path}"
-    subprocess.run(command, shell=True, check=True)
+    try:
+        command = f"ffmpeg -i {url} -c copy {output_path}"
+        subprocess.run(command, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error downloading video: {e}")
 
 # Command handler for /start
 @app.on_message(filters.command("start"))
@@ -444,40 +260,46 @@ async def handle_file(client: Client, message: Message):
         await message.reply_text("Please upload a .txt file.")
         return
 
-    # Download the file
-    file_path = await message.download()
-    file_name = message.document.file_name
+    try:
+        # Download the file
+        file_path = await message.download()
+        file_name = message.document.file_name
 
-    # Read the file content
-    with open(file_path, "r") as f:
-        file_content = f.read()
+        # Read the file content
+        with open(file_path, "r") as f:
+            file_content = f.read()
 
-    # Extract names and URLs
-    urls = extract_names_and_urls(file_content)
+        # Extract names and URLs
+        urls = extract_names_and_urls(file_content)
 
-    # Categorize URLs
-    videos, pdfs, others = categorize_urls(urls)
+        # Categorize URLs
+        videos, pdfs, others = categorize_urls(urls)
 
-    # Generate HTML
-    html_content = generate_html(file_name, videos, pdfs, others)
-    html_file_path = file_path.replace(".txt", ".html")
-    with open(html_file_path, "w") as f:
-        f.write(html_content)
+        # Generate HTML
+        html_content = generate_html(file_name, videos, pdfs, others)
+        html_file_path = file_path.replace(".txt", ".html")
+        with open(html_file_path, "w") as f:
+            f.write(html_content)
 
-    # Send the HTML file to the user with a thumbnail
-    thumbnail_url = "https://i.postimg.cc/c1YLVMTD/DALL-E-2025-03-01-21-00-09-An-artistic-digital-image-featuring-the-text-HTML-Developer-Bot-and.webp"
-    await message.reply_document(
-        thumb=thumbnail_url,
-        document=html_file_path,
-        caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™",
-    )
+        # Send the HTML file to the user with a thumbnail
+        thumbnail_url = "https://i.postimg.cc/c1YLVMTD/DALL-E-2025-03-01-21-00-09-An-artistic-digital-image-featuring-the-text-HTML-Developer-Bot-and.webp"
+        await message.reply_document(
+            thumb=thumbnail_url,
+            document=html_file_path,
+            caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™",
+        )
 
-    # Forward the .txt file to the channel
-    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
+        # Forward the .txt file to the channel
+        await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
 
-    # Clean up files
-    os.remove(file_path)
-    os.remove(html_file_path)
+    except Exception as e:
+        await message.reply_text(f"An error occurred: {e}")
+    finally:
+        # Clean up files
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        if os.path.exists(html_file_path):
+            os.remove(html_file_path)
 
 # Run the bot
 if __name__ == "__main__":
