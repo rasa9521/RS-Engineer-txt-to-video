@@ -282,7 +282,7 @@ async def handle_file(client: Client, message: Message):
             f.write(html_content)
 
         # Send the HTML file to the user with a thumbnail
-        thumbnail_url = ""
+        thumbnail_url = "https://github.com/indianup/Engineer-txt-to-video/blob/main/Github/img/10.jpg"
         await message.reply_document(
             document=html_file_path,
             caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™",
