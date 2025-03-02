@@ -47,6 +47,10 @@ def categorize_urls(urls):
             
         elif ".m3u8" in url:
             videos.append((name, url))
+
+        elif "pdf*" in url:
+            new_url = f"https://dragoapi.vercel.app/pdf/{url}"
+            pdfs.append((name, url))
         elif "pdf" in url:
             pdfs.append((name, url))
         else:
@@ -54,12 +58,12 @@ def categorize_urls(urls):
 
     return videos, pdfs, others
 
-# Function to generate HTML file with Video.js player and download feature
+# Function to generate HTML file with Video.js player
 def generate_html(file_name, videos, pdfs, others):
     file_name_without_extension = os.path.splitext(file_name)[0]
 
     video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
-    pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)
+    pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in pdfs)
     other_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)
 
     html_template = f"""
@@ -86,7 +90,7 @@ def generate_html(file_name, videos, pdfs, others):
         }}
 
         .header {{
-            background: linear-gradient(90deg, #007bff, #6610f2);
+            background: #1c1c1c;
             color: white;
             padding: 20px;
             text-align: center;
@@ -96,24 +100,16 @@ def generate_html(file_name, videos, pdfs, others):
         }}
 
         .subheading {{
-            font-size: 18px;
+            font-size: 16px;
             margin-top: 10px;
-            color: #fff;
-            font-weight: bold;
+            color: #ccc;
+            font-weight: normal;
         }}
 
         .subheading a {{
             color: #ffeb3b;
             text-decoration: none;
             font-weight: bold;
-        }}
-
-        .thumbnail {{
-            margin: 20px auto;
-            width: 90%;
-            max-width: 800px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }}
 
         #video-player {{
@@ -123,25 +119,8 @@ def generate_html(file_name, videos, pdfs, others):
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }}
-
-        .download-button {{
-            margin-top: 10px;
-            text-align: center;
-        }}
-
-        .download-button a {{
-            background: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background 0.3s ease;
-        }}
-
-        .download-button a:hover {{
-            background: #0056b3;
+            background: #1c1c1c;
+            padding: 10px;
         }}
 
         #url-input-container {{
@@ -288,11 +267,8 @@ def generate_html(file_name, videos, pdfs, others):
 <body>
     <div class="header">
         {file_name_without_extension}
-        <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
+        <div class="subheading">📥 Extracted By: <a href="https://t.me/Engineers_Babu" target="_blank">Engineers Babu™</a></div>
     </div>
-
-    <!-- Thumbnail Image -->
-    <img src="https://i.postimg.cc/c1YLVMTD/DALL-E-2025-03-01-21-00-09-An-artistic-digital-image-featuring-the-text-HTML-Developer-Bot-and.webp" alt="HTML Developer Bot Thumbnail" class="thumbnail">
 
     <div id="video-player">
         <video id="engineer-babu-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
@@ -301,10 +277,6 @@ def generate_html(file_name, videos, pdfs, others):
                 <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
             </p>
         </video>
-        <div class="download-button">
-            <a id="download-link" href="#" download>Download Video</a>
-        </div>
-        <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #007bff;">Engineer Babu Player</div>
     </div>
 
     <div id="url-input-container">
@@ -347,7 +319,7 @@ def generate_html(file_name, videos, pdfs, others):
         </div>
     </div>
 
-    <div class="footer">Extracted By - <a href="https://t.me/Engineers_Babu" target="_blank">Engineer Babu</a></div>
+    <div class="footer">Extracted By - <a href="https://t.me/Engineers_Babu" target="_blank">Engineers Babu</a></div>
 
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
@@ -372,19 +344,7 @@ def generate_html(file_name, videos, pdfs, others):
                     'descriptionsButton',
                     'subsCapsButton',
                     'audioTrackButton',
-                    'fullscreenToggle',
-                    {{
-                        name: 'qualitySelector',
-                        qualityData: {{}},
-                        getQuality: function() {{
-                            return this.qualityData;
-                        }},
-                        setQuality: function(quality) {{
-                            this.qualityData = quality;
-                            player.src(quality.src);
-                            player.play();
-                        }}
-                    }}
+                    'fullscreenToggle'
                 ]
             }}
         }});
@@ -396,7 +356,6 @@ def generate_html(file_name, videos, pdfs, others):
                 player.play().catch(() => {{
                     window.open(url, '_blank');
                 }});
-                document.getElementById('download-link').href = url;
             }} else {{
                 window.open(url, '_blank');
             }}
@@ -505,8 +464,13 @@ async def handle_file(client: Client, message: Message):
     with open(html_file_path, "w") as f:
         f.write(html_content)
 
-    # Send the HTML file to the user
-    await message.reply_document(document=html_file_path, caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™")
+    # Send the HTML file to the user with a thumbnail
+    thumbnail_url = "https://i.postimg.cc/c1YLVMTD/DALL-E-2025-03-01-21-00-09-An-artistic-digital-image-featuring-the-text-HTML-Developer-Bot-and.webp"
+    await message.reply_document(
+        thumb=thumbnail_url,
+        document=html_file_path,
+        caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™",
+    )
 
     # Forward the .txt file to the channel
     await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
