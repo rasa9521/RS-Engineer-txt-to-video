@@ -282,11 +282,11 @@ async def handle_file(client: Client, message: Message):
             f.write(html_content)
 
         # Send the HTML file to the user with a thumbnail
-        thumbnail_url = "https://i.postimg.cc/c1YLVMTD/DALL-E-2025-03-01-21-00-09-An-artistic-digital-image-featuring-the-text-HTML-Developer-Bot-and.webp"
+        thumbnail_url = ""
         await message.reply_document(
-            thumb=thumbnail_url,
             document=html_file_path,
             caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™",
+            thumb=thumbnail_url,
         )
 
         # Forward the .txt file to the channel
