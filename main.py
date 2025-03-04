@@ -21,6 +21,8 @@ from utils import get_datetime_str, create_html_file
 API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
 BOT_TOKEN = "8013725761:AAGQyr32ibk7HQNqxv4FSD2ZrrSLOmzknlg"
+
+
 # ==========Logging==========#
 logging.basicConfig(
     level=logging.DEBUG,
@@ -37,9 +39,9 @@ logging = logging.getLogger()
 # =========== Client ===========#
 bot = Client(
     "bot",
-    bot_token=bot_token,
-    api_id=api_id,
-    api_hash=api_hash,
+    bot_token=BOT_TOKEN,
+    api_id=API_ID,
+    api_hash=API_HASH,
 )
 
 print(listen.__file__)
