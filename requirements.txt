@@ -34,15 +34,3 @@ beautifulsoup4
 cloudscraper
 m3u8
 python-telegram-bot==20.0
-
-asyncio
-json
-logging
-os
-re
-subprocess
-sys
-time
-requests
-pyrogram
-pyromod
