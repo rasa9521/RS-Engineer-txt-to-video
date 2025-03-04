@@ -16,6 +16,11 @@ from pyrogram.types import Message
 from pyromod import listen
 
 from utils import get_datetime_str, create_html_file
+
+
+API_ID = int(environ.get("API_ID", "21705536"))
+API_HASH = environ.get("API_HASH", "c5bb241f6e3ecf33fe68a444e288de2d")
+BOT_TOKEN = environ.get("BOT_TOKEN", "8013725761:AAGQyr32ibk7HQNqxv4FSD2ZrrSLOmzknlg")
 # ==========Logging==========#
 logging.basicConfig(
     level=logging.DEBUG,
