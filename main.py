@@ -39,9 +39,9 @@ def categorize_urls(urls):
             vid_id = url.split("/")[-2]
             new_url = f"https://player.muftukmall.site/?id={vid_id}"
             videos.append((name, new_url))
-        elif 'videos.classplusapp' in url or "tencdn.classplusapp" in url or "webvideos.classplusapp.com" in url or "media-cdn-alisg.classplusapp.com" in url or "videos.classplusapp" in url or "videos.classplusapp.com" in url or "media-cdn-a.classplusapp" in url or "media-cdn.classplusapp" in url or "alisg-cdn-a.classplusapp" in url:
+        elif 'videos.classplusapp' in url or "tencdn.classplusapp" in url or "webvideos.classplusapp.com" in url or "media-cdn-alisg.classplusapp.com" in url or "videos.classplusapp" in url or "vi[...]
             try:
-                response = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': 'eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9yZ0lkIjo0ODA2MTksImNhdGVnb3J5SWQiOm51bGx9r'})
+                response = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': 'eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9[...]
                 if response.status_code == 200:
                     new_url = response.json().get('url', url)
                     videos.append((name, new_url))
@@ -124,7 +124,7 @@ def generate_html(file_name, videos, pdfs, others):
         .footer {{ margin-top: 30px; font-size: 18px; font-weight: bold; padding: 15px; background: #1c1c1c; color: white; border-radius: 10px; }}
         .footer a {{ color: #ffeb3b; text-decoration: none; font-weight: bold; }}
         .video-list, .pdf-list, .other-list {{ text-align: left; max-width: 600px; margin: auto; }}
-        .video-list a, .pdf-list a, .other-list a {{ display: block; padding: 10px; background: #fff; margin: 5px 0; border-radius: 5px; text-decoration: none; color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
+        .video-list a, .pdf-list a, .other-list a {{ display: block; padding: 10px; background: #fff; margin: 5px 0; border-radius: 5px; text-decoration: none; color: #007bff; font-weight: bold; [...]
         .video-list a:hover, .pdf-list a:hover, .other-list a:hover {{ background: #007bff; color: white; }}
         .search-bar {{ margin: 20px auto; width: 80%; max-width: 600px; }}
         .search-bar input {{ width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 5px; font-size: 16px; }}
@@ -137,7 +137,7 @@ def generate_html(file_name, videos, pdfs, others):
 </head>
 <body>
     <div class="header">{file_name_without_extension}</div>
-    <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
+    <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a>[...]
 
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
@@ -265,47 +265,50 @@ def generate_html(file_name, videos, pdfs, others):
 # Command handler for /start
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬.")
+    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑[...]
 
 # Message handler for file uploads
 @app.on_message(filters.document)
 async def handle_file(client: Client, message: Message):
-    # Check if the file is a .txt file
-    if not message.document.file_name.endswith(".txt"):
-        await message.reply_text("Please upload a .txt file.")
-        return
+    try:
+        # Check if the file is a .txt file
+        if not message.document.file_name.endswith(".txt"):
+            await message.reply_text("Please upload a .txt file.")
+            return
 
-    # Download the file
-    file_path = await message.download()
-    file_name = message.document.file_name
+        # Download the file
+        file_path = await message.download()
+        file_name = message.document.file_name
 
-    # Read the file content
-    with open(file_path, "r") as f:
-        file_content = f.read()
+        # Read the file content
+        with open(file_path, "r") as f:
+            file_content = f.read()
 
-    # Extract names and URLs
-    urls = extract_names_and_urls(file_content)
+        # Extract names and URLs
+        urls = extract_names_and_urls(file_content)
 
-    # Categorize URLs
-    videos, pdfs, others = categorize_urls(urls)
+        # Categorize URLs
+        videos, pdfs, others = categorize_urls(urls)
 
-    # Organize files into folders
-    output_dir = organize_files(file_path, videos, pdfs, others)
+        # Organize files into folders
+        output_dir = organize_files(file_path, videos, pdfs, others)
 
-    # Generate HTML
-    html_content = generate_html(file_name, videos, pdfs, others)
-    html_file_path = os.path.join(output_dir, f"{os.path.splitext(file_name)[0]}.html")
-    with open(html_file_path, "w") as f:
-        f.write(html_content)
+        # Generate HTML
+        html_content = generate_html(file_name, videos, pdfs, others)
+        html_file_path = os.path.join(output_dir, f"{os.path.splitext(file_name)[0]}.html")
+        with open(html_file_path, "w") as f:
+            f.write(html_content)
 
-    # Send the HTML file to the user
-    await message.reply_document(document=html_file_path, caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™")
+        # Send the HTML file to the user
+        await message.reply_document(document=html_file_path, caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : �[...]
 
-    # Forward the .txt file to the channel
-    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
+        # Forward the .txt file to the channel
+        await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
 
-    # Clean up files
-    os.remove(file_path)
+        # Clean up files
+        os.remove(file_path)
+    except Exception as e:
+        await message.reply_text(f"An error occurred: {e}")
 
 # Run the bot
 if __name__ == "__main__":
