@@ -56,6 +56,36 @@ def categorize_urls(urls):
 
     return videos, pdfs, others
 
+# Function to create folders and organize files
+def organize_files(file_name, videos, pdfs, others):
+    base_dir = os.path.dirname(file_name)
+    file_name_without_extension = os.path.splitext(os.path.basename(file_name))[0]
+    output_dir = os.path.join(base_dir, file_name_without_extension)
+    
+    # Create folders
+    videos_dir = os.path.join(output_dir, "videos")
+    pdfs_dir = os.path.join(output_dir, "pdfs")
+    others_dir = os.path.join(output_dir, "others")
+    
+    os.makedirs(videos_dir, exist_ok=True)
+    os.makedirs(pdfs_dir, exist_ok=True)
+    os.makedirs(others_dir, exist_ok=True)
+    
+    # Organize files
+    for name, url in videos:
+        with open(os.path.join(videos_dir, f"{name}.txt"), "w") as f:
+            f.write(url)
+    
+    for name, url in pdfs:
+        with open(os.path.join(pdfs_dir, f"{name}.txt"), "w") as f:
+            f.write(url)
+    
+    for name, url in others:
+        with open(os.path.join(others_dir, f"{name}.txt"), "w") as f:
+            f.write(url)
+    
+    return output_dir
+
 # Function to generate HTML file with Video.js player and download feature
 def generate_html(file_name, videos, pdfs, others):
     file_name_without_extension = os.path.splitext(file_name)[0]
@@ -252,9 +282,12 @@ async def handle_file(client: Client, message: Message):
     # Categorize URLs
     videos, pdfs, others = categorize_urls(urls)
 
+    # Organize files into folders
+    output_dir = organize_files(file_path, videos, pdfs, others)
+
     # Generate HTML
     html_content = generate_html(file_name, videos, pdfs, others)
-    html_file_path = file_path.replace(".txt", ".html")
+    html_file_path = os.path.join(output_dir, f"{os.path.splitext(file_name)[0]}.html")
     with open(html_file_path, "w") as f:
         f.write(html_content)
 
@@ -266,7 +299,6 @@ async def handle_file(client: Client, message: Message):
 
     # Clean up files
     os.remove(file_path)
-    os.remove(html_file_path)
 
 # Run the bot
 if __name__ == "__main__":
