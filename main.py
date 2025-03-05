@@ -2,6 +2,8 @@ import os
 import requests
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from collections import defaultdict
+import re
 
 # Replace with your API ID, API Hash, and Bot Token
 API_ID = "21705536"
@@ -39,23 +41,18 @@ def categorize_urls(urls):
             vid_id = url.split("/")[-2]
             new_url = f"https://player.muftukmall.site/?id={vid_id}"
             videos.append((name, new_url))
-        elif 'videos.classplusapp' in url or "tencdn.classplusapp" in url or "webvideos.classplusapp.com" in url or "media-cdn-alisg.classplusapp.com" in url or "videos.classplusapp" in url or "vi[...]
-            try:
-                response = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': 'eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9[...]
-                if response.status_code == 200:
-                    new_url = response.json().get('url', url)
-                    videos.append((name, new_url))
-                else:
-                    videos.append((name, url))
-            except Exception as e:
-                print(f"Error fetching signed URL: {e}")
-                videos.append((name, url))
-        elif "youtube.com/embed" in url:
+        elif 'videos.classplusapp' in url or "tencdn.classplusapp" in url or "webvideos.classplusapp.com" in url or "media-cdn-alisg.classplusapp.com" in url or "videos.classplusapp" in url or "videos.classplusapp.com" in url or "media-cdn-a.classplusapp" in url or "media-cdn.classplusapp" in url or "alisg-cdn-a.classplusapp" in url:
+            url = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': 'eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9yZ0lkIjo0ODA2MTksImNhdGVnb3J5SWQiOm51bGx9r'}).json()['url']
+        elif "youtube" in url:
             yt_id = url.split("/")[-1]
             new_url = f"https://www.youtube.com/watch?v={yt_id}"
             videos.append((name, new_url))
         elif ".m3u8" in url:
             videos.append((name, url))
+
+        elif "pdf*" in url:
+            new_url = f"https://dragoapi.vercel.app/pdf/{url}"
+            pdfs.append((name, new_url))
         elif "pdf" in url:
             pdfs.append((name, url))
         else:
@@ -63,44 +60,52 @@ def categorize_urls(urls):
 
     return videos, pdfs, others
 
-# Function to create folders and organize files
-def organize_files(file_name, videos, pdfs, others):
-    base_dir = os.path.dirname(file_name)
-    file_name_without_extension = os.path.splitext(os.path.basename(file_name))[0]
-    output_dir = os.path.join(base_dir, file_name_without_extension)
-    
-    # Create folders
-    videos_dir = os.path.join(output_dir, "videos")
-    pdfs_dir = os.path.join(output_dir, "pdfs")
-    others_dir = os.path.join(output_dir, "others")
-    
-    os.makedirs(videos_dir, exist_ok=True)
-    os.makedirs(pdfs_dir, exist_ok=True)
-    os.makedirs(others_dir, exist_ok=True)
-    
-    # Organize files
-    for name, url in videos:
-        with open(os.path.join(videos_dir, f"{name}.txt"), "w") as f:
-            f.write(url)
-    
-    for name, url in pdfs:
-        with open(os.path.join(pdfs_dir, f"{name}.txt"), "w") as f:
-            f.write(url)
-    
-    for name, url in others:
-        with open(os.path.join(others_dir, f"{name}.txt"), "w") as f:
-            f.write(url)
-    
-    return output_dir
+# Function to analyze subjects from names
+def analyze_subjects(items):
+    subject_map = defaultdict(list)
+    for name, url in items:
+        # Extract subject from name (e.g., "Math Lecture 1" -> "Math")
+        subject = re.split(r'\d+', name)[0].strip()  # Split by numbers and take the first part
+        subject_map[subject].append((name, url))
+    return subject_map
 
-# Function to generate HTML file with Video.js player and download feature
+# Function to generate HTML file with subject-based categorization
 def generate_html(file_name, videos, pdfs, others):
     file_name_without_extension = os.path.splitext(file_name)[0]
 
-    video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
-    pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)
-    other_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)
+    # Analyze subjects for videos, PDFs, and others
+    video_subjects = analyze_subjects(videos)
+    pdf_subjects = analyze_subjects(pdfs)
+    other_subjects = analyze_subjects(others)
 
+    # Generate HTML for videos
+    video_html = ""
+    for subject, items in video_subjects.items():
+        video_html += f'<div class="subject" onclick="toggleSubject(\'videos-{subject}\')">{subject}</div>'
+        video_html += f'<div id="videos-{subject}" class="subject-content">'
+        for name, url in items:
+            video_html += f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>'
+        video_html += '</div>'
+
+    # Generate HTML for PDFs
+    pdf_html = ""
+    for subject, items in pdf_subjects.items():
+        pdf_html += f'<div class="subject" onclick="toggleSubject(\'pdfs-{subject}\')">{subject}</div>'
+        pdf_html += f'<div id="pdfs-{subject}" class="subject-content">'
+        for name, url in items:
+            pdf_html += f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>'
+        pdf_html += '</div>'
+
+    # Generate HTML for others
+    other_html = ""
+    for subject, items in other_subjects.items():
+        other_html += f'<div class="subject" onclick="toggleSubject(\'others-{subject}\')">{subject}</div>'
+        other_html += f'<div id="others-{subject}" class="subject-content">'
+        for name, url in items:
+            other_html += f'<a href="{url}" target="_blank">{name}</a>'
+        other_html += '</div>'
+
+    # HTML template
     html_template = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -123,9 +128,9 @@ def generate_html(file_name, videos, pdfs, others):
         .active {{ display: block; }}
         .footer {{ margin-top: 30px; font-size: 18px; font-weight: bold; padding: 15px; background: #1c1c1c; color: white; border-radius: 10px; }}
         .footer a {{ color: #ffeb3b; text-decoration: none; font-weight: bold; }}
-        .video-list, .pdf-list, .other-list {{ text-align: left; max-width: 600px; margin: auto; }}
-        .video-list a, .pdf-list a, .other-list a {{ display: block; padding: 10px; background: #fff; margin: 5px 0; border-radius: 5px; text-decoration: none; color: #007bff; font-weight: bold; [...]
-        .video-list a:hover, .pdf-list a:hover, .other-list a:hover {{ background: #007bff; color: white; }}
+        .subject {{ padding: 10px; background: #fff; margin: 5px 0; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
+        .subject:hover {{ background: #007bff; color: white; }}
+        .subject-content {{ display: none; padding-left: 20px; }}
         .search-bar {{ margin: 20px auto; width: 80%; max-width: 600px; }}
         .search-bar input {{ width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 5px; font-size: 16px; }}
         .no-results {{ color: red; font-weight: bold; margin-top: 20px; display: none; }}
@@ -137,7 +142,7 @@ def generate_html(file_name, videos, pdfs, others):
 </head>
 <body>
     <div class="header">{file_name_without_extension}</div>
-    <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a>[...]
+    <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
 
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
@@ -166,23 +171,17 @@ def generate_html(file_name, videos, pdfs, others):
 
     <div id="videos" class="content">
         <h2>All Video Lectures</h2>
-        <div class="video-list">
-            {video_links}
-        </div>
+        {video_html}
     </div>
 
     <div id="pdfs" class="content">
         <h2>All PDFs</h2>
-        <div class="pdf-list">
-            {pdf_links}
-        </div>
+        {pdf_html}
     </div>
 
     <div id="others" class="content">
         <h2>Other Resources</h2>
-        <div class="other-list">
-            {other_links}
-        </div>
+        {other_html}
     </div>
 
     <div class="footer">Extracted By - <a href="https://t.me/Engineers_Babu" target="_blank">Engineer Babu</a></div>
@@ -209,6 +208,15 @@ def generate_html(file_name, videos, pdfs, others):
             }}
         }}
 
+        function toggleSubject(subjectId) {{
+            const subjectContent = document.getElementById(subjectId);
+            if (subjectContent.style.display === 'none') {{
+                subjectContent.style.display = 'block';
+            }} else {{
+                subjectContent.style.display = 'none';
+            }}
+        }}
+
         function showContent(tabName) {{
             const contents = document.querySelectorAll('.content');
             contents.forEach(content => {{
@@ -217,39 +225,6 @@ def generate_html(file_name, videos, pdfs, others):
             const selectedContent = document.getElementById(tabName);
             if (selectedContent) {{
                 selectedContent.style.display = 'block';
-            }}
-            filterContent();
-        }}
-
-        function filterContent() {{
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const categories = ['videos', 'pdfs', 'others'];
-            let hasResults = false;
-
-            categories.forEach(category => {{
-                const items = document.querySelectorAll(`#${{category}} .${{category}}-list a`);
-                let categoryHasResults = false;
-
-                items.forEach(item => {{
-                    const itemText = item.textContent.toLowerCase();
-                    if (itemText.includes(searchTerm)) {{
-                        item.style.display = 'block';
-                        categoryHasResults = true;
-                        hasResults = true;
-                    }} else {{
-                        item.style.display = 'none';
-                    }}
-                }});
-
-                const categoryHeading = document.querySelector(`#${{category}} h2`);
-                if (categoryHeading) {{
-                    categoryHeading.style.display = categoryHasResults ? 'block' : 'none';
-                }}
-            }});
-
-            const noResultsMessage = document.getElementById('noResults');
-            if (noResultsMessage) {{
-                noResultsMessage.style.display = hasResults ? 'none' : 'block';
             }}
         }}
 
@@ -265,50 +240,45 @@ def generate_html(file_name, videos, pdfs, others):
 # Command handler for /start
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑[...]
+    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬.")
 
 # Message handler for file uploads
 @app.on_message(filters.document)
 async def handle_file(client: Client, message: Message):
-    try:
-        # Check if the file is a .txt file
-        if not message.document.file_name.endswith(".txt"):
-            await message.reply_text("Please upload a .txt file.")
-            return
+    # Check if the file is a .txt file
+    if not message.document.file_name.endswith(".txt"):
+        await message.reply_text("Please upload a .txt file.")
+        return
 
-        # Download the file
-        file_path = await message.download()
-        file_name = message.document.file_name
+    # Download the file
+    file_path = await message.download()
+    file_name = message.document.file_name
 
-        # Read the file content
-        with open(file_path, "r") as f:
-            file_content = f.read()
+    # Read the file content
+    with open(file_path, "r") as f:
+        file_content = f.read()
 
-        # Extract names and URLs
-        urls = extract_names_and_urls(file_content)
+    # Extract names and URLs
+    urls = extract_names_and_urls(file_content)
 
-        # Categorize URLs
-        videos, pdfs, others = categorize_urls(urls)
+    # Categorize URLs
+    videos, pdfs, others = categorize_urls(urls)
 
-        # Organize files into folders
-        output_dir = organize_files(file_path, videos, pdfs, others)
+    # Generate HTML
+    html_content = generate_html(file_name, videos, pdfs, others)
+    html_file_path = file_path.replace(".txt", ".html")
+    with open(html_file_path, "w") as f:
+        f.write(html_content)
 
-        # Generate HTML
-        html_content = generate_html(file_name, videos, pdfs, others)
-        html_file_path = os.path.join(output_dir, f"{os.path.splitext(file_name)[0]}.html")
-        with open(html_file_path, "w") as f:
-            f.write(html_content)
+    # Send the HTML file to the user
+    await message.reply_document(document=html_file_path, caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™")
 
-        # Send the HTML file to the user
-        await message.reply_document(document=html_file_path, caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : �[...]
+    # Forward the .txt file to the channel
+    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
 
-        # Forward the .txt file to the channel
-        await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
-
-        # Clean up files
-        os.remove(file_path)
-    except Exception as e:
-        await message.reply_text(f"An error occurred: {e}")
+    # Clean up files
+    os.remove(file_path)
+    os.remove(html_file_path)
 
 # Run the bot
 if __name__ == "__main__":
