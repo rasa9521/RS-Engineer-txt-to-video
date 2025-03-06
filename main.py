@@ -1,4 +1,3 @@
-
 import os
 import requests
 from pyrogram import Client, filters
@@ -7,7 +6,7 @@ from pyrogram.types import Message
 # Replace with your API ID, API Hash, and Bot Token
 API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
-BOT_TOKEN = "7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"
+BOT_TOKEN = "8013725761:AAGQyr32ibk7HQNqxv4FSD2ZrrSLOmzknlg"
 
 # Telegram channel where files will be forwarded
 CHANNEL_USERNAME = "engineerbabuxtfiles"  # Replace with your channel username
@@ -189,8 +188,10 @@ def generate_html(file_name, videos, pdfs, others):
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categories = ['videos', 'pdfs', 'others'];
             let hasResults = false;
+            let firstMatchingCategory = null;
 
             categories.forEach(category => {{
+                const categorySection = document.getElementById(category);
                 const items = document.querySelectorAll(`#${{category}} .${{category}}-list a`);
                 let categoryHasResults = false;
 
@@ -206,15 +207,20 @@ def generate_html(file_name, videos, pdfs, others):
                 }});
 
                 const categoryHeading = document.querySelector(`#${{category}} h2`);
-                if (categoryHeading) {{
-                    categoryHeading.style.display = categoryHasResults ? 'block' : 'none';
+                if (categoryHasResults) {{
+                    categorySection.style.display = "block";
+                    if (!firstMatchingCategory) {{
+                    firstMatchingCategory = category;
+                    }}
+                }} else {{
+                    categorySection.style.display = "none";
                 }}
             }});
-
-            const noResultsMessage = document.getElementById('noResults');
-            if (noResultsMessage) {{
-                noResultsMessage.style.display = hasResults ? 'none' : 'block';
+            document.getElementById("noResults").style.display = hasResults ? "none" : "block";
+            if (firstMatchingCategory) {{
+            showContent(firstMatchingCategory);
             }}
+              
         }}
 
         document.addEventListener('DOMContentLoaded', () => {{
