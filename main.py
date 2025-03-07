@@ -29,7 +29,7 @@ bot = Client(
 )
 
 # Sudo (Owner) ID
-SUDO_USERS = [123456789]  # Replace with your Telegram ID
+SUDO_USERS = [1147534909]  # Replace with your Telegram ID
 
 # Data storage for authorized users, channels, and groups
 AUTHORIZED_USERS = set()
