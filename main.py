@@ -16,9 +16,9 @@ from pyrogram.types import Message
 from pyrogram.errors import FloodWait
 
 # Bot Configuration
-API_ID = 1234567  # Replace with your API ID
-API_HASH = "your_api_hash"  # Replace with your API HASH
-BOT_TOKEN = "your_bot_token"  # Replace with your Bot Token
+API_ID = "21705536" # Replace with your API ID
+API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"  # Replace with your API HASH
+BOT_TOKEN = "7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"  # Replace with your Bot Token
 
 # Initialize the bot
 bot = Client(
