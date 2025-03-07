@@ -1,281 +1,339 @@
 import os
+import re
+import sys
+import json
+import time
+import asyncio
 import requests
+import subprocess
+import urllib.parse
+import yt_dlp
+import cloudscraper
+import m3u8
+from aiohttp import ClientSession, web
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from pyrogram.errors import FloodWait
 
-# Replace with your API ID, API Hash, and Bot Token
-API_ID = "21705536"
-API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
-BOT_TOKEN = "7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"
+# Bot Configuration
+API_ID = 1234567  # Replace with your API ID
+API_HASH = "your_api_hash"  # Replace with your API HASH
+BOT_TOKEN = "your_bot_token"  # Replace with your Bot Token
 
-# Telegram channel where files will be forwarded
-CHANNEL_USERNAME = "engineerbabuxtfiles"  # Replace with your channel username
+# Initialize the bot
+bot = Client(
+    "bot",
+    api_id=API_ID,
+    api_hash=API_HASH,
+    bot_token=BOT_TOKEN
+)
 
-# Initialize Pyrogram Client
-app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+# Sudo (Owner) ID
+SUDO_USERS = [123456789]  # Replace with your Telegram ID
 
-# Function to extract names and URLs from the text file
-def extract_names_and_urls(file_content):
-    lines = file_content.strip().split("\n")
-    data = []
-    for line in lines:
-        if ":" in line:
-            name, url = line.split(":", 1)
-            data.append((name.strip(), url.strip()))
-    return data
+# Data storage for authorized users, channels, and groups
+AUTHORIZED_USERS = set()
+AUTHORIZED_CHANNELS = set()
+AUTHORIZED_GROUPS = set()
 
-# Function to categorize URLs
-def categorize_urls(urls):
-    videos = []
-    pdfs = []
-    others = []
+# Load authorized data from file (if exists)
+if os.path.exists("authorized_data.json"):
+    with open("authorized_data.json", "r") as f:
+        data = json.load(f)
+        AUTHORIZED_USERS = set(data.get("users", []))
+        AUTHORIZED_CHANNELS = set(data.get("channels", []))
+        AUTHORIZED_GROUPS = set(data.get("groups", []))
 
-    for name, url in urls:
-        new_url = url
-        if "media-cdn.classplusapp.com/drm/" in url or "cpvod.testbook" in url:
-            new_url = f"https://dragoapi.vercel.app/video/{url}"
-            videos.append((name, new_url))
-        elif "/master.mpd" in url:
-            vid_id = url.split("/")[-2]
-            new_url = f"https://player.muftukmall.site/?id={vid_id}"
-            videos.append((name, new_url))
+# Save authorized data to file
+def save_authorized_data():
+    data = {
+        "users": list(AUTHORIZED_USERS),
+        "channels": list(AUTHORIZED_CHANNELS),
+        "groups": list(AUTHORIZED_GROUPS)
+    }
+    with open("authorized_data.json", "w") as f:
+        json.dump(data, f)
 
-        elif 'videos.classplusapp' in url or "tencdn.classplusapp" in url or "webvideos.classplusapp.com" in url or "media-cdn-alisg.classplusapp.com" in url or "videos.classplusapp" in url or "videos.classplusapp.com" in url or "media-cdn-a.classplusapp" in url or "media-cdn.classplusapp" in url or "alisg-cdn-a.classplusapp" in url:
-             url = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': 'eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9yZ0lkIjo0ODA2MTksImNhdGVnb3J5SWQiOm51bGx9r'}).json()['url']
+# Check if user is authorized
+def is_authorized(user_id):
+    return user_id in AUTHORIZED_USERS or user_id in SUDO_USERS
 
-        elif "youtube.com/embed" in url:
-            yt_id = url.split("/")[-1]
-            new_url = f"https://www.youtube.com/watch?v={yt_id}"
-            
-        elif ".m3u8" in url:
-            videos.append((name, url))
-        elif "pdf" in url:
-            pdfs.append((name, url))
-        else:
-            others.append((name, url))
+# Check if channel is authorized
+def is_authorized_channel(channel_id):
+    return channel_id in AUTHORIZED_CHANNELS
 
-    return videos, pdfs, others
+# Check if group is authorized
+def is_authorized_group(group_id):
+    return group_id in AUTHORIZED_GROUPS
 
-# Function to generate HTML file with Video.js player and download feature
-def generate_html(file_name, videos, pdfs, others):
-    file_name_without_extension = os.path.splitext(file_name)[0]
+# Define aiohttp routes
+routes = web.RouteTableDef()
 
-    video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
-    pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)
-    other_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)
+@routes.get("/", allow_head=True)
+async def root_route_handler(request):
+    return web.json_response("Bot is running!")
 
-    html_template = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{file_name_without_extension}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
-    <style>
-        * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }}
-        body {{ background: #f5f7fa; text-align: center; }}
-        .header {{ background: linear-gradient(90deg, #007bff, #6610f2); color: white; padding: 15px; font-size: 24px; font-weight: bold; }}
-        .subheading {{ font-size: 18px; margin-top: 10px; color: #555; font-weight: bold; }}
-        .subheading a {{ background: linear-gradient(90deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; font-weight: bold; }}
-        .container {{ display: flex; justify-content: space-around; margin: 30px auto; width: 80%; }}
-        .tab {{ flex: 1; padding: 20px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; border-radius: 10px; font-size: 20px; font-weight: bold; }}
-        .tab:hover {{ background: #007bff; color: white; }}
-        .content {{ display: none; margin-top: 20px; }}
-        .active {{ display: block; }}
-        .footer {{ margin-top: 30px; font-size: 18px; font-weight: bold; padding: 15px; background: #1c1c1c; color: white; border-radius: 10px; }}
-        .footer a {{ color: #ffeb3b; text-decoration: none; font-weight: bold; }}
-        .video-list, .pdf-list, .other-list {{ text-align: left; max-width: 600px; margin: auto; }}
-        .video-list a, .pdf-list a, .other-list a {{ display: block; padding: 10px; background: #fff; margin: 5px 0; border-radius: 5px; text-decoration: none; color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
-        .video-list a:hover, .pdf-list a:hover, .other-list a:hover {{ background: #007bff; color: white; }}
-        .search-bar {{ margin: 20px auto; width: 80%; max-width: 600px; }}
-        .search-bar input {{ width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 5px; font-size: 16px; }}
-        .no-results {{ color: red; font-weight: bold; margin-top: 20px; display: none; }}
-        #video-player {{ display: none; margin: 20px auto; width: 80%; max-width: 800px; }}
-        .download-button {{ margin-top: 10px; text-align: center; }}
-        .download-button a {{ background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }}
-        .download-button a:hover {{ background: #0056b3; }}
-    </style>
-</head>
-<body>
-    <div class="header">{file_name_without_extension}</div>
-    <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
+async def web_server():
+    web_app = web.Application(client_max_size=30000000)
+    web_app.add_routes(routes)
+    return web_app
 
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
-    </div>
+async def start_bot():
+    await bot.start()
+    print("Bot is up and running")
 
-    <div id="noResults" class="no-results">No results found.</div>
+async def stop_bot():
+    await bot.stop()
 
-    <div id="video-player">
-        <video id="engineer-babu-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
-            <p class="vjs-no-js">
-                To view this video please enable JavaScript, and consider upgrading to a web browser that
-                <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-            </p>
-        </video>
-        <div class="download-button">
-            <a id="download-link" href="#" download>Download Video</a>
-        </div>
-        <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #007bff;">Engineer Babu Player</div>
-    </div>
+async def main():
+    # Start the bot
+    await start_bot()
 
-    <div class="container">
-        <div class="tab" onclick="showContent('videos')">Videos</div>
-        <div class="tab" onclick="showContent('pdfs')">PDFs</div>
-        <div class="tab" onclick="showContent('others')">Others</div>
-    </div>
+    # Keep the program running
+    try:
+        while True:
+            await asyncio.sleep(3600)  # Run forever, or until interrupted
+    except (KeyboardInterrupt, SystemExit):
+        await stop_bot()
 
-    <div id="videos" class="content">
-        <h2>All Video Lectures</h2>
-        <div class="video-list">
-            {video_links}
-        </div>
-    </div>
-
-    <div id="pdfs" class="content">
-        <h2>All PDFs</h2>
-        <div class="pdf-list">
-            {pdf_links}
-        </div>
-    </div>
-
-    <div id="others" class="content">
-        <h2>Other Resources</h2>
-        <div class="other-list">
-            {other_links}
-        </div>
-    </div>
-
-    <div class="footer">Extracted By - <a href="https://t.me/Engineers_Babu" target="_blank">Engineer Babu</a></div>
-
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-    <script>
-        const player = videojs('engineer-babu-player', {{
-            controls: true,
-            autoplay: false,
-            preload: 'auto',
-            fluid: true,
-        }});
-
-        function playVideo(url) {{
-            if (url.includes('.m3u8')) {{
-                document.getElementById('video-player').style.display = 'block';
-                player.src({{ src: url, type: 'application/x-mpegURL' }});
-                player.play().catch(() => {{
-                    window.open(url, '_blank');
-                }});
-                document.getElementById('download-link').href = url;
-            }} else {{
-                window.open(url, '_blank');
-            }}
-        }}
-
-        function showContent(tabName) {{
-            const contents = document.querySelectorAll('.content');
-            contents.forEach(content => {{
-                content.style.display = 'none';
-            }});
-            const selectedContent = document.getElementById(tabName);
-            if (selectedContent) {{
-                selectedContent.style.display = 'block';
-            }}
-            filterContent();
-        }}
-
-        function filterContent() {{
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const categories = ['videos', 'pdfs', 'others'];
-            let hasResults = false;
-            let firstMatchingCategory = null;
-
-            categories.forEach(category => {{
-                const categorySection = document.getElementById(category);
-                const items = document.querySelectorAll(`#${{category}} .${{category}}-list a`);
-                let categoryHasResults = false;
-
-                items.forEach(item => {{
-                    const itemText = item.textContent.toLowerCase();
-                    if (itemText.includes(searchTerm)) {{
-                        item.style.display = 'block';
-                        categoryHasResults = true;
-                        hasResults = true;
-                    }} else {{
-                        item.style.display = 'none';
-                    }}
-                }});
-
-                const categoryHeading = document.querySelector(`#${{category}} h2`);
-                if (categoryHasResults) {{
-                    categorySection.style.display = "block";
-                    if (!firstMatchingCategory) {{
-                    firstMatchingCategory = category;
-                    }}
-                }} else {{
-                    categorySection.style.display = "none";
-                }}
-            }});
-            document.getElementById("noResults").style.display = hasResults ? "none" : "block";
-            if (firstMatchingCategory) {{
-            showContent(firstMatchingCategory);
-            }}
-              
-        }}
-
-        document.addEventListener('DOMContentLoaded', () => {{
-            showContent('videos');
-        }});
-    </script>
-</body>
-</html>
-    """
-    return html_template
-
-# Command handler for /start
-@app.on_message(filters.command("start"))
-async def start(client: Client, message: Message):
-    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬.")
-
-# Message handler for file uploads
-@app.on_message(filters.document)
-async def handle_file(client: Client, message: Message):
-    # Check if the file is a .txt file
-    if not message.document.file_name.endswith(".txt"):
-        await message.reply_text("Please upload a .txt file.")
+# Start command handler
+@bot.on_message(filters.command("start"))
+async def start(client: Client, msg: Message):
+    if not is_authorized(msg.from_user.id):
+        await msg.reply_sticker("CAACAgUAAxkBAAEB...")  # Replace with a "denied" sticker
+        await msg.reply_text("You are not authorized to use this bot.")
         return
 
-    # Download the file
-    file_path = await message.download()
-    file_name = message.document.file_name
+    await msg.reply_text(
+        "🌟 Welcome to the Bot! 🌟\n\n"
+        "Use /help to see available commands."
+    )
 
-    # Read the file content
-    with open(file_path, "r") as f:
-        file_content = f.read()
+# Engineer/Upload command handler
+@bot.on_message(filters.command(["engineer", "upload"]))
+async def engineer_upload(client: Client, msg: Message):
+    # Check authorization
+    if not (is_authorized(msg.from_user.id) or is_authorized_channel(msg.chat.id) or is_authorized_group(msg.chat.id)):
+        await msg.reply_sticker("CAACAgUAAxkBAAEB...")  # Replace with a "denied" sticker
+        await msg.reply_text("You are not authorized to use this command.")
+        return
 
-    # Extract names and URLs
-    urls = extract_names_and_urls(file_content)
+    editable = await msg.reply_text("🔹 Hi, I am a Powerful TXT Downloader Bot. Send me the TXT file and wait.")
+    input: Message = await bot.listen(msg.chat.id)
+    x = await input.download()
+    await input.delete(True)
 
-    # Categorize URLs
-    videos, pdfs, others = categorize_urls(urls)
+    file_name, ext = os.path.splitext(os.path.basename(x))
+    credit = "𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™"
 
-    # Generate HTML
-    html_content = generate_html(file_name, videos, pdfs, others)
-    html_file_path = file_path.replace(".txt", ".html")
-    with open(html_file_path, "w") as f:
-        f.write(html_content)
+    try:
+        with open(x, "r") as f:
+            content = f.read()
+        content = content.split("\n")
+        links = [i.split("://", 1) for i in content]
+        os.remove(x)
+    except Exception as e:
+        await msg.reply_text(f"Invalid file input. Error: {e}")
+        os.remove(x)
+        return
 
-    # Send the HTML file to the user
-    await message.reply_document(document=html_file_path, caption="✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™")
+    await editable.edit(f"Total links found: **{len(links)}**\n\nSend the starting point (default is 1).")
+    input0: Message = await bot.listen(msg.chat.id)
+    raw_text = input0.text
+    await input0.delete(True)
 
-    # Forward the .txt file to the channel
-    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
+    try:
+        arg = int(raw_text)
+    except:
+        arg = 1
 
-    # Clean up files
-    os.remove(file_path)
-    os.remove(html_file_path)
+    await editable.edit("Enter your batch name or send 'd' to use the filename.")
+    input1: Message = await bot.listen(msg.chat.id)
+    raw_text0 = input1.text
+    await input1.delete(True)
+    b_name = file_name if raw_text0 == 'd' else raw_text0
+
+    await editable.edit("Enter resolution (e.g., 480 or 720).")
+    input2: Message = await bot.listen(msg.chat.id)
+    raw_text2 = input2.text
+    await input2.delete(True)
+
+    res = {
+        "144": "144x256",
+        "240": "240x426",
+        "360": "360x640",
+        "480": "480x854",
+        "720": "720x1280",
+        "1080": "1080x1920"
+    }.get(raw_text2, "UN")
+
+    await editable.edit("Enter your name or send 'de' to use the default.")
+    input3: Message = await bot.listen(msg.chat.id)
+    raw_text3 = input3.text
+    await input3.delete(True)
+    CR = credit if raw_text3 == 'de' else raw_text3
+
+    await editable.edit("Enter your PW token for MPD URL or send 'not' to use the default.")
+    input4: Message = await bot.listen(msg.chat.id)
+    raw_text4 = input4.text
+    await input4.delete(True)
+    MR = "default_token" if raw_text4 == 'not' else raw_text4
+
+    await editable.edit("Send the thumbnail URL or 'no' to skip.")
+    input6: Message = await bot.listen(msg.chat.id)
+    raw_text6 = input6.text
+    await input6.delete(True)
+    thumb = "thumb.jpg" if raw_text6.startswith(("http://", "https://")) else "no"
+
+    if thumb != "no":
+        os.system(f"wget '{raw_text6}' -O 'thumb.jpg'")
+
+    count = arg
+    for i in range(arg - 1, len(links)):
+        try:
+            url = "https://" + links[i][1]
+            name = f"{str(count).zfill(3)}) {links[i][0][:60]}"
+            cmd = f'yt-dlp -o "{name}.mp4" "{url}"'
+
+            await editable.edit(f"Downloading: **{name}**")
+            os.system(cmd)
+            await bot.send_video(msg.chat.id, f"{name}.mp4", caption=f"**{name}**\n\nUploaded by {CR}")
+            os.remove(f"{name}.mp4")
+            count += 1
+        except Exception as e:
+            await msg.reply_text(f"Error downloading {url}: {e}")
+            continue
+
+    await msg.reply_text("✅ All downloads completed!")
+
+# Add user command
+@bot.on_message(filters.command("adduser") & filters.user(SUDO_USERS))
+async def add_user(client: Client, msg: Message):
+    if msg.reply_to_message:
+        user_id = msg.reply_to_message.from_user.id
+        AUTHORIZED_USERS.add(user_id)
+        save_authorized_data()
+        await msg.reply_sticker("CAACAgUAAxkBAAEB...")  # Replace with a "success" sticker
+        await msg.reply_text(f"User {user_id} has been added to the authorized list.")
+    else:
+        await msg.reply_text("Please reply to a user's message to add them.")
+
+# Remove user command
+@bot.on_message(filters.command("removeuser") & filters.user(SUDO_USERS))
+async def remove_user(client: Client, msg: Message):
+    if msg.reply_to_message:
+        user_id = msg.reply_to_message.from_user.id
+        if user_id in AUTHORIZED_USERS:
+            AUTHORIZED_USERS.remove(user_id)
+            save_authorized_data()
+            await msg.reply_sticker("CAACAgUAAxkBAAEB...")  # Replace with a "removed" sticker
+            await msg.reply_text(f"User {user_id} has been removed from the authorized list.")
+        else:
+            await msg.reply_text("User is not in the authorized list.")
+    else:
+        await msg.reply_text("Please reply to a user's message to remove them.")
+
+# Add channel command
+@bot.on_message(filters.command("addchannel") & filters.user(SUDO_USERS))
+async def add_channel(client: Client, msg: Message):
+    try:
+        channel_id = int(msg.text.split()[1])
+        AUTHORIZED_CHANNELS.add(channel_id)
+        save_authorized_data()
+        await msg.reply_sticker("CAACAgUAAxkBAAEB...")  # Replace with a "success" sticker
+        await msg.reply_text(f"Channel {channel_id} has been added to the authorized list.")
+    except:
+        await msg.reply_text("Invalid channel ID.")
+
+# Remove channel command
+@bot.on_message(filters.command("removechannel") & filters.user(SUDO_USERS))
+async def remove_channel(client: Client, msg: Message):
+    try:
+        channel_id = int(msg.text.split()[1])
+        if channel_id in AUTHORIZED_CHANNELS:
+            AUTHORIZED_CHANNELS.remove(channel_id)
+            save_authorized_data()
+            await msg.reply_sticker("CAACAgUAAxkBAAEB...")  # Replace with a "removed" sticker
+            await msg.reply_text(f"Channel {channel_id} has been removed from the authorized list.")
+        else:
+            await msg.reply_text("Channel is not in the authorized list.")
+    except:
+        await msg.reply_text("Invalid channel ID.")
+
+# Add group command
+@bot.on_message(filters.command("addgroup") & filters.user(SUDO_USERS))
+async def add_group(client: Client, msg: Message):
+    try:
+        group_id = int(msg.text.split()[1])
+        AUTHORIZED_GROUPS.add(group_id)
+        save_authorized_data()
+        await msg.reply_sticker("CAACAgUAAxkBAAEB...")  # Replace with a "success" sticker
+        await msg.reply_text(f"Group {group_id} has been added to the authorized list.")
+    except:
+        await msg.reply_text("Invalid group ID.")
+
+# Remove group command
+@bot.on_message(filters.command("removegroup") & filters.user(SUDO_USERS))
+async def remove_group(client: Client, msg: Message):
+    try:
+        group_id = int(msg.text.split()[1])
+        if group_id in AUTHORIZED_GROUPS:
+            AUTHORIZED_GROUPS.remove(group_id)
+            save_authorized_data()
+            await msg.reply_sticker("CAACAgUAAxkBAAEB...")  # Replace with a "removed" sticker
+            await msg.reply_text(f"Group {group_id} has been removed from the authorized list.")
+        else:
+            await msg.reply_text("Group is not in the authorized list.")
+    except:
+        await msg.reply_text("Invalid group ID.")
+
+# List users command
+@bot.on_message(filters.command("userlist") & filters.user(SUDO_USERS))
+async def list_users(client: Client, msg: Message):
+    if AUTHORIZED_USERS:
+        users_list = "\n".join([f"User ID: {user_id}" for user_id in AUTHORIZED_USERS])
+        await msg.reply_text(f"Authorized Users:\n{users_list}")
+    else:
+        await msg.reply_text("No authorized users.")
+
+# List channels command
+@bot.on_message(filters.command("channellist") & filters.user(SUDO_USERS))
+async def list_channels(client: Client, msg: Message):
+    if AUTHORIZED_CHANNELS:
+        channels_list = "\n".join([f"Channel ID: {channel_id}" for channel_id in AUTHORIZED_CHANNELS])
+        await msg.reply_text(f"Authorized Channels:\n{channels_list}")
+    else:
+        await msg.reply_text("No authorized channels.")
+
+# List groups command
+@bot.on_message(filters.command("grouplist") & filters.user(SUDO_USERS))
+async def list_groups(client: Client, msg: Message):
+    if AUTHORIZED_GROUPS:
+        groups_list = "\n".join([f"Group ID: {group_id}" for group_id in AUTHORIZED_GROUPS])
+        await msg.reply_text(f"Authorized Groups:\n{groups_list}")
+    else:
+        await msg.reply_text("No authorized groups.")
+
+# Help command
+@bot.on_message(filters.command("help"))
+async def help_command(client: Client, msg: Message):
+    help_text = (
+        "🌟 **Available Commands** 🌟\n\n"
+        "/start - Start the bot\n"
+        "/engineer or /upload - Download and upload files (Authorized only)\n"
+        "/adduser - Add a user (Sudo only)\n"
+        "/removeuser - Remove a user (Sudo only)\n"
+        "/addchannel - Add a channel (Sudo only)\n"
+        "/removechannel - Remove a channel (Sudo only)\n"
+        "/addgroup - Add a group (Sudo only)\n"
+        "/removegroup - Remove a group (Sudo only)\n"
+        "/userlist - List authorized users (Sudo only)\n"
+        "/channellist - List authorized channels (Sudo only)\n"
+        "/grouplist - List authorized groups (Sudo only)\n"
+        "/help - Show this help message"
+    )
+    await msg.reply_text(help_text)
 
 # Run the bot
 if __name__ == "__main__":
-    print("Bot is running...")
-    app.run()
+    asyncio.run(main())
