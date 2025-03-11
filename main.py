@@ -1,99 +1,102 @@
+
 import os
 import re
-import requests
+import subprocess
+import shutil
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from n_m3u8dl import NM3U8DL
 
+# Constants
 # Replace these with your credentials
 API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
 BOT_TOKEN = "7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"
-# Initialize the Pyrogram client
+OUTPUT_DIR = 'output'  # Directory to store temporary files
+
+# Ensure output directory exists
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# Initialize Pyrogram Client
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-# Function to extract MPD and KEY_STRING from the JSON response
-def extract_mpd_and_keys(url):
-    try:
-        print(f"Fetching data from URL: {url}")
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        mpd_url = data.get("MPD", "")
-        key_string = data.get("KEY_STRING", "")
-        print(f"Extracted MPD: {mpd_url}")
-        print(f"Extracted KEY_STRING: {key_string}")
-        return mpd_url, key_string
-    except Exception as e:
-        print(f"Error extracting MPD and keys: {e}")
-        return None, None
+def extract_decryption_key(url):
+    # Extract the decryption key from the URL
+    match = re.search(r'--key\s+([a-f0-9]+:[a-f0-9]+)\s+--key\s+([a-f0-9]+:[a-f0-9]+)\s+--key\s+([a-f0-9]+:[a-f0-9]+)', url)
+    if match:
+        return f"--key {match.group(1)} --key {match.group(2)} --key {match.group(3)}"
+    return None
 
-# Function to replace raw_url with final_url in the text file while preserving the name
-def replace_urls_in_file(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            content = file.read()
+def download_video(url, name):
+    # Download the video using n_m3u8
+    downloader = NM3U8DL(url, output_dir=OUTPUT_DIR, save_name=name)
+    downloader.download()
 
-        # Regex to find URLs while preserving the name
-        url_pattern = re.compile(r'(.*?)(https://media-cdn\.classplusapp\.com/drm/[^\s]+)')
-        new_content = content
+def decrypt_files(video_file, audio_file, key):
+    # Decrypt video and audio files using Bento4's mp4decrypt
+    decrypted_video = os.path.join(OUTPUT_DIR, f'decrypted_{os.path.basename(video_file)}')
+    decrypted_audio = os.path.join(OUTPUT_DIR, f'decrypted_{os.path.basename(audio_file)}')
+    
+    # Decrypt video
+    subprocess.run(['mp4decrypt', *key.split(), video_file, decrypted_video])
+    # Decrypt audio
+    subprocess.run(['mp4decrypt', *key.split(), audio_file, decrypted_audio])
 
-        for match in url_pattern.finditer(content):
-            name = match.group(1).strip()  # Extract the name
-            raw_url = match.group(2)  # Extract the URL
-            print(f"Processing URL: {raw_url}")
-            new_url = f"https://dragoapi.vercel.app/classplus?link={raw_url}"
-            mpd_url, key_string = extract_mpd_and_keys(new_url)
-            if mpd_url and key_string:
-                final_url = f"{mpd_url} {key_string}"
-                # Replace only the URL while keeping the name intact
-                new_content = new_content.replace(raw_url, final_url)
-                print(f"Replaced URL: {final_url}")
+def combine_audio_video(video_file, audio_file, output_file):
+    # Combine audio and video using ffmpeg
+    subprocess.run(['ffmpeg', '-i', video_file, '-i', audio_file, '-c', 'copy', output_file])
 
-        # Write the modified content to a new file
-        new_file_path = file_path.replace('.txt', '_modified.txt')
-        with open(new_file_path, 'w') as new_file:
-            new_file.write(new_content)
+@app.on_message(filters.document & filters.regex(r'\.txt$'))
+async def handle_txt_file(client: Client, message: Message):
+    # Download the .txt file sent by the user
+    txt_file = await message.download(file_name=os.path.join(OUTPUT_DIR, "urls.txt"))
 
-        print(f"New file created: {new_file_path}")
-        return new_file_path
-    except Exception as e:
-        print(f"Error in replace_urls_in_file: {e}")
-        return None
+    # Read the URL from the .txt file
+    with open(txt_file, 'r') as file:
+        url = file.readline().strip()  # Read the first line as the URL
 
-# Handler for /start command
-@app.on_message(filters.command("start"))
-def start(client: Client, message: Message):
-    message.reply_text("Send me a .txt file to process!")
+    # Extract the name from the URL or use a default name
+    name = "video"  # Default name
+    if "/drm/wv" in url:
+        # Extract name from URL or use a default
+        name_match = re.search(r'/([^/]+)\.mpd', url)
+        if name_match:
+            name = name_match.group(1)
 
-# Handler for receiving documents
-@app.on_message(filters.document)
-def handle_file(client: Client, message: Message):
-    try:
-        # Check if the file is a .txt file
-        if message.document.file_name.endswith('.txt'):
-            # Download the file
-            print(f"Downloading file: {message.document.file_name}")
-            file_path = message.download(file_name=message.document.file_name)
-            print(f"File downloaded to: {file_path}")
+    # Step 1: Extract the decryption key from the URL
+    decryption_key = extract_decryption_key(url)
+    if not decryption_key:
+        await message.reply_text("Decryption key not found in the URL.")
+        return
 
-            # Process the file
-            new_file_path = replace_urls_in_file(file_path)
-            if new_file_path:
-                # Send the modified file back to the user
-                print(f"Sending modified file: {new_file_path}")
-                message.reply_document(new_file_path)
-                
-                # Clean up: Delete the original and modified files
-                os.remove(file_path)
-                os.remove(new_file_path)
-                print("Temporary files deleted.")
-            else:
-                message.reply_text("Error processing the file. Please try again.")
-        else:
-            message.reply_text("Please send a .txt file.")
-    except Exception as e:
-        print(f"Error in handle_file: {e}")
-        message.reply_text("An error occurred. Please try again.")
+    # Step 2: Download the video
+    await message.reply_text("Downloading video...")
+    download_video(url, name)
+
+    # Define file paths
+    video_file = os.path.join(OUTPUT_DIR, f'{name}.mp4')
+    audio_file = os.path.join(OUTPUT_DIR, f'{name}_audio.mp4')
+
+    # Step 3: Decrypt the video and audio
+    await message.reply_text("Decrypting video and audio...")
+    decrypt_files(video_file, audio_file, decryption_key)
+
+    # Define decrypted file paths
+    decrypted_video = os.path.join(OUTPUT_DIR, f'decrypted_{name}.mp4')
+    decrypted_audio = os.path.join(OUTPUT_DIR, f'decrypted_{name}_audio.mp4')
+
+    # Step 4: Combine audio and video
+    await message.reply_text("Combining audio and video...")
+    final_video = os.path.join(OUTPUT_DIR, f'final_{name}.mp4')
+    combine_audio_video(decrypted_video, decrypted_audio, final_video)
+
+    # Step 5: Send the video to the user
+    await message.reply_text("Sending video to you...")
+    await message.reply_video(final_video)
+
+    # Clean up temporary files
+    shutil.rmtree(OUTPUT_DIR, ignore_errors=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Start the bot
 print("Bot is running...")
