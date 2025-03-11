@@ -35,3 +35,8 @@ cloudscraper
 m3u8
 python-telegram-bot==20.0
 collection
+
+pyrogram>=2.0.0
+n-m3u8dl>=0.1.0
+requests>=2.26.0
+ffmpeg-python>=0.2.0
