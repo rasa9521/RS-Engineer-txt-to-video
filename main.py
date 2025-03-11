@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 # Initialize the Pyrogram client
 app = Client(
     "my_bot",
-    api_id="YOUR_API_ID",  # Replace with your API ID
-    api_hash="YOUR_API_HASH",  # Replace with your API Hash
-    bot_token="YOUR_BOT_TOKEN"  # Replace with your bot token
+    api_id="21705536",  # Replace with your API ID
+    api_hash="c5bb241f6e3ecf33fe68a444e288de2d",  # Replace with your API Hash
+    bot_token="7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"  # Replace with your bot token
 )
 
 # Dictionary to store categorized links
