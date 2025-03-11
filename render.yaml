@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: telegram-bot
+    runtime: python
+    buildCommand: |
+      pip install -r requirements.txt
+      apt-get update && apt-get install -y ffmpeg wget unzip
+      wget https://www.bok.net/Bento4/binaries/Bento4-SDK-1-6-0-639.x86_64-unknown-linux.zip -O bento4.zip
+      unzip bento4.zip -d bento4
+      chmod +x bento4/bin/*
+      export PATH=$PATH:$(pwd)/bento4/bin
+    startCommand: python bot.py
+    envVars:
+      - key: API_ID
+        value: 21705536
+      - key: API_HASH
+        value: c5bb241f6e3ecf33fe68a444e288de2d
+      - key: BOT_TOKEN
+        value: 7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE
