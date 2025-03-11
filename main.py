@@ -1,14 +1,19 @@
 import re
+import logging
 from collections import defaultdict
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
+# Enable logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Initialize the Pyrogram client
 app = Client(
     "my_bot",
-    api_id="21705536",  # Replace with your API ID
-    api_hash="c5bb241f6e3ecf33fe68a444e288de2d",  # Replace with your API Hash
-    bot_token="7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"  # Replace with your bot token
+    api_id="YOUR_API_ID",  # Replace with your API ID
+    api_hash="YOUR_API_HASH",  # Replace with your API Hash
+    bot_token="YOUR_BOT_TOKEN"  # Replace with your bot token
 )
 
 # Dictionary to store categorized links
@@ -57,26 +62,34 @@ async def start(client: Client, message: Message):
 # Handler for .txt files
 @app.on_message(filters.document & filters.regex(r"\.txt$"))
 async def handle_file(client: Client, message: Message):
-    # Download the file
-    file_path = await message.download()
+    try:
+        # Download the file
+        file_path = await message.download(file_name="input.txt")
+        logger.info(f"File downloaded to: {file_path}")
 
-    # Read the file
-    with open(file_path, "r") as f:
-        text = f.read()
+        # Read the file
+        with open(file_path, "r") as f:
+            text = f.read()
 
-    # Categorize the links
-    categorize_links(text)
+        # Categorize the links
+        categorize_links(text)
 
-    # Generate the categorized output
-    output = generate_categorized_file(categories)
+        # Generate the categorized output
+        output = generate_categorized_file(categories)
 
-    # Save the output to a new file
-    output_file_path = "categorized_output.txt"
-    with open(output_file_path, "w") as f:
-        f.write(output)
+        # Save the output to a new file
+        output_file_path = "categorized_output.txt"
+        with open(output_file_path, "w") as f:
+            f.write(output)
+        logger.info(f"Categorized file saved to: {output_file_path}")
 
-    # Send the categorized file back to the user
-    await message.reply_document(output_file_path, caption="Here is your categorized file!")
+        # Send the categorized file back to the user
+        await message.reply_document(output_file_path, caption="Here is your categorized file!")
+        logger.info("Categorized file sent successfully.")
+
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        await message.reply_text("An error occurred while processing the file. Please try again.")
 
 # Run the bot
 if __name__ == "__main__":
