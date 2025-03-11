@@ -5,9 +5,8 @@ import subprocess
 import shutil
 from pyrogram import Client, filters
 from pyrogram.types import Message
-from n_m3u8dl import NM3U8DL
+from N_m3u8DL_RE import Downloader
 
-# Constants
 # Replace these with your credentials
 API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
@@ -28,8 +27,8 @@ def extract_decryption_key(url):
     return None
 
 def download_video(url, name):
-    # Download the video using n_m3u8
-    downloader = NM3U8DL(url, output_dir=OUTPUT_DIR, save_name=name)
+    # Download the video using N_m3u8DL-RE
+    downloader = Downloader(url, output_dir=OUTPUT_DIR, save_name=name)
     downloader.download()
 
 def decrypt_files(video_file, audio_file, key):
