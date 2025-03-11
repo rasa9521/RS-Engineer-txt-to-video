@@ -35,4 +35,3 @@ cloudscraper
 m3u8
 python-telegram-bot==20.0
 collection
-git+https://github.com/nilaoda/N_m3u8DL-RE.git
