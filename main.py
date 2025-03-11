@@ -1,3 +1,4 @@
+import os
 import re
 import logging
 from collections import defaultdict
@@ -21,7 +22,6 @@ categories = defaultdict(list)
 
 # Function to extract name and URL from a line
 def extract_name_and_url(line):
-    # Regex to match the pattern: "Name: URL"
     match = re.match(r"^(.*?)\s*:\s*(https?://\S+)$", line.strip())
     if match:
         name = match.group(1).strip()
@@ -31,17 +31,12 @@ def extract_name_and_url(line):
 
 # Function to categorize links based on the name
 def categorize_links(text):
-    # Clear previous categories
     categories.clear()
-
-    # Process each line in the text
     for line in text.splitlines():
         name, url = extract_name_and_url(line)
         if name and url:
-            # Extract the category from the name (e.g., first word or keyword)
             category = name.split()[0]  # Use the first word as the category
             categories[category].append((name, url))
-
     return categories
 
 # Function to generate the categorized text file
@@ -63,27 +58,30 @@ async def start(client: Client, message: Message):
 @app.on_message(filters.document & filters.regex(r"\.txt$"))
 async def handle_file(client: Client, message: Message):
     try:
-        # Download the file
         file_path = await message.download(file_name="input.txt")
         logger.info(f"File downloaded to: {file_path}")
+        if not os.path.exists(file_path):
+            logger.error("File download failed.")
+            await message.reply_text("Failed to download the file.")
+            return
 
-        # Read the file
         with open(file_path, "r") as f:
             text = f.read()
+            logger.info(f"File content: {text[:500]}")  # Log first 500 characters
 
-        # Categorize the links
-        categorize_links(text)
+        categories = categorize_links(text)
+        logger.info(f"Categorized links: {categories}")
 
-        # Generate the categorized output
         output = generate_categorized_file(categories)
-
-        # Save the output to a new file
         output_file_path = "categorized_output.txt"
         with open(output_file_path, "w") as f:
             f.write(output)
         logger.info(f"Categorized file saved to: {output_file_path}")
+        if not os.path.exists(output_file_path):
+            logger.error("Failed to save the categorized file.")
+            await message.reply_text("Failed to save the categorized file.")
+            return
 
-        # Send the categorized file back to the user
         await message.reply_document(output_file_path, caption="Here is your categorized file!")
         logger.info("Categorized file sent successfully.")
 
@@ -91,7 +89,6 @@ async def handle_file(client: Client, message: Message):
         logger.error(f"An error occurred: {e}")
         await message.reply_text("An error occurred while processing the file. Please try again.")
 
-# Run the bot
 if __name__ == "__main__":
     print("Bot is running...")
     app.run()
