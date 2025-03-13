@@ -233,29 +233,34 @@ def generate_html(file_name, videos, pdfs, others):
             categories.forEach(category => {{
                 const items = document.querySelectorAll(`#${{category}} .${{category}}-list a`);
                 let categoryHasResults = false;
+                let firstMatchingCategory = null;
 
-                items.forEach(item => {{
-                    const itemText = item.textContent.toLowerCase();
-                    if (itemText.includes(searchTerm)) {{
-                        item.style.display = 'block';
-                        categoryHasResults = true;
-                        hasResults = true;
-                    }} else {{
-                        item.style.display = 'none';
-                    }}
-                }});
+                categories.forEach(category => {
+                    const categorySection = document.getElementById(category);
+                    const items = categorySection.querySelectorAll(`.${category}-list a`);
+                    let categoryHasResults = false;
 
-                const categoryHeading = document.querySelector(`#${{category}} h2`);
-                if (categoryHeading) {{
-                    categoryHeading.style.display = categoryHasResults ? 'block' : 'none';
-                }}
-            }});
+                    items.forEach(item => {
+                        if (item.textContent.toLowerCase().includes(searchTerm)) {
+                            item.style.display = 'block';
+                            categoryHasResults = true;
+                            hasResults = true;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
 
-            const noResultsMessage = document.getElementById('noResults');
-            if (noResultsMessage) {{
-                noResultsMessage.style.display = hasResults ? 'none' : 'block';
-            }}
-        }}
+                    categorySection.style.display = categoryHasResults ? "block" : "none";
+                    if (categoryHasResults && !firstMatchingCategory) {
+                        firstMatchingCategory = category;
+                    }
+                });
+
+                document.getElementById("noResults").style.display = hasResults ? "none" : "block";
+                if (firstMatchingCategory) {
+                    showContent(firstMatchingCategory);
+                }
+            }
 
         function updateDateTime() {{
             const now = new Date();
