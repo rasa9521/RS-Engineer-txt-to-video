@@ -37,7 +37,3 @@ python-telegram-bot==20.0
 collection
 datetime
 json
-pyrogram==2.0.106
-tgcrypto==1.2.5
-python-dotenv==1.0.0
-requests==2.31.0
