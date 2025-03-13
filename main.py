@@ -99,22 +99,20 @@ def generate_html(file_name, videos, pdfs, others):
         .download-button {{ margin-top: 10px; text-align: center; }}
         .download-button a {{ background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }}
         .download-button a:hover {{ background: #0056b3; }}
-        .datetime {{ margin-top: 10px; font-size: 18px; font-weight: bold; color: #007bff; }}
+        .datetime {{ margin-top: 10px; font-size: 18px; font-weight: bold; color: #808080; }}
     </style>
 </head>
 <body>
     <div class="header">{file_name_without_extension}</div>
     <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
     <br>
-    <p>🔹𝐔𝐬𝐞 𝐓𝐡𝐢𝐬 𝐁𝐨𝐭 𝐟𝐨𝐫 𝐓𝐗𝐓 𝐭𝐨 𝐇𝐓𝐌𝐋 𝐟𝐢𝐥𝐞 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐢𝐨𝐧 : <a href="https://t.me/htmldeveloperbot" target="_blank"> @𝐡𝐭𝐦𝐥𝐝𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫𝐛𝐨𝐭 🚀</a></p>
-
-    <div class="datetime" id="datetime">📅 Loading date and time...</div>
+    <p>🔹𝐔𝐬𝐞 𝐓𝐡𝐢𝐬 𝐁𝐨𝐭 𝐟𝐨𝐫 𝐓𝐗𝐓 𝐭𝐨 𝐇𝐓𝐌𝐋 𝐟𝐢𝐥𝐞 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐢𝐨𝐧 : <a href="https://t.me/htmldeveloperbot" target="_blank"> @𝐡𝐭𝐦𝐥𝐝𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫𝐛𝐨𝐭 </a></p>
 
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
     </div>
 
-    <div id="noResults" class="no-results">No results found.</div>
+    <div class="datetime" id="datetime">📅 Loading date and time...</div>
 
     <div id="video-player">
         <video id="engineer-babu-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
@@ -131,7 +129,7 @@ def generate_html(file_name, videos, pdfs, others):
 
     <div id="youtube-player">
         <div id="player"></div>
-        <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #007bff;">YouTube Player</div>
+        <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #007bff;">Engineer Babu Player</div>
     </div>
 
     <div class="container">
@@ -316,7 +314,7 @@ async def handle_file(client: Client, message: Message):
     # Send the HTML file to the user
     await message.reply_document(
         document=html_file_path,
-        caption=f"✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™\n🎞️: {total_videos}, 📖: {total_pdfs}, 🔖: {total_others}"
+        caption=f"✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™\n\n🎞️ 𝐕𝐢𝐝𝐞𝐨𝐬 : {total_videos}, 📖 𝐏𝐝𝐟𝐬 : {total_pdfs}, 🔖 𝐎𝐭𝐡𝐞𝐫𝐬 : {total_others}"
     )
 
     # Forward the .txt file to the channel
