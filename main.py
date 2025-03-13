@@ -213,55 +213,50 @@ def generate_html(file_name, videos, pdfs, others):
             return (match && match[2].length === 11) ? match[2] : null;
         }}
 
-        function showContent(tabName) {{
-            const contents = document.querySelectorAll('.content');
-            contents.forEach(content => {{
-                content.style.display = 'none';
-            }});
-            const selectedContent = document.getElementById(tabName);
-            if (selectedContent) {{
-                selectedContent.style.display = 'block';
-            }}
-            filterContent();
-        }}
+        function showContent(tabName) {
+            document.querySelectorAll('.content').forEach(content => content.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
 
-        function filterContent() {{
+            document.getElementById(tabName).style.display = 'block';
+            document.querySelector(`.tab[onclick="showContent('${tabName}')"]`).classList.add('active');
+        }
+
+        function filterContent() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categories = ['videos', 'pdfs', 'others'];
             let hasResults = false;
+            let firstMatchingCategory = null;
 
-            categories.forEach(category => {{
-                const items = document.querySelectorAll(`#${{category}} .${{category}}-list a`);
+            categories.forEach(category => {
+                const categorySection = document.getElementById(category);
+                const items = categorySection.querySelectorAll(`.${category}-list a`);
                 let categoryHasResults = false;
-                let firstMatchingCategory = null;
 
-                categories.forEach(category => {
-                    const categorySection = document.getElementById(category);
-                    const items = categorySection.querySelectorAll(`.${category}-list a`);
-                    let categoryHasResults = false;
-
-                    items.forEach(item => {
-                        if (item.textContent.toLowerCase().includes(searchTerm)) {
-                            item.style.display = 'block';
-                            categoryHasResults = true;
-                            hasResults = true;
-                        } else {
-                            item.style.display = 'none';
-                        }
-                    });
-
-                    categorySection.style.display = categoryHasResults ? "block" : "none";
-                    if (categoryHasResults && !firstMatchingCategory) {
-                        firstMatchingCategory = category;
+                items.forEach(item => {
+                    if (item.textContent.toLowerCase().includes(searchTerm)) {
+                        item.style.display = 'block';
+                        categoryHasResults = true;
+                        hasResults = true;
+                    } else {
+                        item.style.display = 'none';
                     }
                 });
 
-                document.getElementById("noResults").style.display = hasResults ? "none" : "block";
-                if (firstMatchingCategory) {
-                    showContent(firstMatchingCategory);
+                categorySection.style.display = categoryHasResults ? "block" : "none";
+                if (categoryHasResults && !firstMatchingCategory) {
+                    firstMatchingCategory = category;
                 }
-            }
+            });
 
+            document.getElementById("noResults").style.display = hasResults ? "none" : "block";
+            if (firstMatchingCategory) {
+                showContent(firstMatchingCategory);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            showContent('videos');
+        });
         function updateDateTime() {{
             const now = new Date();
             const options = {{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }};
