@@ -3,7 +3,6 @@ import requests
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from datetime import datetime
-from bs4 import BeautifulSoup
 
 # Replace with your API ID, API Hash, and Bot Token
 API_ID = "21705536"
@@ -47,7 +46,7 @@ def categorize_urls(urls):
             yt_id = url.split("v=")[-1].split("&")[0] if "v=" in url else url.split("/")[-1]
             new_url = f"https://www.youtube.com/watch?v={yt_id}"
             videos.append((name, new_url))
-        elif ".m3u8" in url or ".mp4" in url or ".mkv" in url or ".webm" in url or ".m3u" in url or ".epg" in url:
+        elif any(ext in url for ext in [".m3u8", ".mp4", ".mkv", ".webp", ".m3u", ".epg"]):
             videos.append((name, url))
         elif "pdf*" in url:
             new_url = f"https://dragoapi.vercel.app/pdf/{url}"
@@ -62,6 +61,9 @@ def categorize_urls(urls):
 # Function to generate HTML file with Video.js player, YouTube player, and download feature
 def generate_html(file_name, videos, pdfs, others):
     file_name_without_extension = os.path.splitext(file_name)[0]
+    total_videos = len(videos)
+    total_pdfs = len(pdfs)
+    total_others = len(others)
 
     video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
     pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)
@@ -100,6 +102,7 @@ def generate_html(file_name, videos, pdfs, others):
         .download-button {{ margin-top: 10px; text-align: center; }}
         .download-button a {{ background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }}
         .download-button a:hover {{ background: #0056b3; }}
+        .datetime {{ font-size: 18px; font-weight: bold; margin-top: 20px; color: #007bff; }}
     </style>
 </head>
 <body>
@@ -108,11 +111,14 @@ def generate_html(file_name, videos, pdfs, others):
     <br>
     <p>🔹𝐔𝐬𝐞 𝐓𝐡𝐢𝐬 𝐁𝐨𝐭 𝐟𝐨𝐫 𝐓𝐗𝐓 𝐭𝐨 𝐇𝐓𝐌𝐋 𝐟𝐢𝐥𝐞 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐢𝐨𝐧 : <a href="https://t.me/htmldeveloperbot" target="_blank"> @𝐡𝐭𝐦𝐥𝐝𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫𝐛𝐨𝐭 🚀</a></p>
 
+    <div class="datetime" id="datetime">📅 Loading date and time...</div>
+    <div class="datetime">🎞️: {total_videos}, 📖: {total_pdfs}, 🔖: {total_others}</div>
+
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
     </div>
 
-    <div class="subheading" id="datetime">📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}</div>
+    <div id="noResults" class="no-results">No results found.</div>
 
     <div id="video-player">
         <video id="engineer-babu-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
@@ -169,7 +175,6 @@ def generate_html(file_name, videos, pdfs, others):
             autoplay: false,
             preload: 'auto',
             fluid: true,
-            techOrder: ['html5', 'flash'], // Add flash fallback for older browsers
         }});
 
         let youtubePlayer;
@@ -178,32 +183,21 @@ def generate_html(file_name, videos, pdfs, others):
             youtubePlayer = new YT.Player('player', {{
                 height: '360',
                 width: '640',
-                playerVars: {{
-                    'playsinline': 1, // Play inline on mobile devices
-                    'rel': 0, // Disable related videos
-                    'modestbranding': 1, // Reduce YouTube branding
-                }},
                 events: {{
                     'onReady': onPlayerReady,
-                    'onError': onPlayerError,
                 }}
             }});
         }}
 
         function onPlayerReady(event) {{
-            console.log('YouTube player is ready');
-        }}
-
-        function onPlayerError(event) {{
-            console.error('YouTube player error:', event.data);
-            alert('Error loading YouTube video. Please try again.');
+            // You can add additional functionality here if needed
         }}
 
         function playVideo(url) {{
-            if (url.includes('.m3u8') || url.includes('.mp4') || url.includes('.mkv') || url.includes('.webm') || url.includes('.m3u') || url.includes('.epg')) {{
+            if (url.includes('.m3u8') || url.includes('.mp4') || url.includes('.mkv') || url.includes('.webp') || url.includes('.m3u') || url.includes('.epg')) {{
                 document.getElementById('video-player').style.display = 'block';
                 document.getElementById('youtube-player').style.display = 'none';
-                player.src({{ src: url, type: getVideoType(url) }});
+                player.src({{ src: url, type: 'application/x-mpegURL' }});
                 player.play().catch(() => {{
                     window.open(url, '_blank');
                 }});
@@ -216,16 +210,6 @@ def generate_html(file_name, videos, pdfs, others):
             }} else {{
                 window.open(url, '_blank');
             }}
-        }}
-
-        function getVideoType(url) {{
-            if (url.includes('.m3u8')) return 'application/x-mpegURL';
-            if (url.includes('.mp4')) return 'video/mp4';
-            if (url.includes('.mkv')) return 'video/x-matroska';
-            if (url.includes('.webm')) return 'video/webm';
-            if (url.includes('.m3u')) return 'application/x-mpegURL';
-            if (url.includes('.epg')) return 'application/x-mpegURL';
-            return 'video/mp4';
         }}
 
         function extractYouTubeId(url) {{
@@ -281,12 +265,11 @@ def generate_html(file_name, videos, pdfs, others):
         function updateDateTime() {{
             const now = new Date();
             const options = {{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }};
-            const formattedDateTime = now.toLocaleDateString('en-US', options);
-            document.getElementById('datetime').textContent = `📅 ${{formattedDateTime}}`;
+            const formattedDateTime = now.toLocaleString('en-US', options);
+            document.getElementById('datetime').innerHTML = `📅 ${{formattedDateTime}}`;
         }}
 
         setInterval(updateDateTime, 1000);
-
         document.addEventListener('DOMContentLoaded', () => {{
             showContent('videos');
             updateDateTime();
@@ -297,69 +280,14 @@ def generate_html(file_name, videos, pdfs, others):
     """
     return html_template
 
-# Function to extract URLs and names from specific HTML structure
-def extract_specific_urls(html_content):
-    soup = BeautifulSoup(html_content, 'html.parser')
-    link_items = soup.find_all('div', class_='link-item')
-    
-    extracted_data = []
-    for item in link_items:
-        link_name = item.find('span', class_='link-name').text.strip()
-        link_url = item.find('button', class_='link-button')['onclick']
-        link_url = link_url.split("'")[1]  # Extract URL from onclick attribute
-        extracted_data.append(f"{link_name} : {link_url}")
-    
-    return extracted_data
-
-# Function to extract URLs and names from general HTML <a> tags
-def extract_general_urls(html_content):
-    soup = BeautifulSoup(html_content, 'html.parser')
-    extracted_data = []
-
-    # Find all <a> tags in the HTML
-    for a_tag in soup.find_all('a', href=True):
-        url_name = a_tag.text.strip()  # Extract the text content (URL name)
-        url = a_tag['href']  # Extract the href attribute (URL)
-        if url_name and url:  # Ensure both name and URL are present
-            extracted_data.append(f"{url_name} : {url}")
-    
-    return extracted_data
-
-# Function to extract URLs from onclick attributes in <a> tags
-def extract_onclick_urls(html_content):
-    soup = BeautifulSoup(html_content, 'html.parser')
-    extracted_data = []
-
-    # Find all <a> tags with onclick attributes
-    for a_tag in soup.find_all('a', onclick=True):
-        url_name = a_tag.text.strip()  # Extract the text content (URL name)
-        onclick_attr = a_tag['onclick']
-        
-        # Extract URL from the onclick attribute
-        if "playVideo(" in onclick_attr:
-            url = onclick_attr.split("'")[1]  # Extract URL from playVideo('URL')
-            extracted_data.append(f"{url_name} : {url}")
-    
-    return extracted_data
-
 # Command handler for /start
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬 𝐨𝐫 𝐮𝐬𝐞 /𝐡𝐭𝐦𝐥 𝐨𝐫 /𝐭𝐱𝐭 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐬.")
+    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬.")
 
-# Command handler for /html (TXT to HTML extraction)
-@app.on_message(filters.command("html"))
-async def html_command(client: Client, message: Message):
-    await message.reply_text("Please upload a .txt file for HTML extraction.")
-
-# Command handler for /txt (HTML to TXT extraction)
-@app.on_message(filters.command("txt"))
-async def txt_command(client: Client, message: Message):
-    await message.reply_text("Please upload an HTML file for TXT extraction.")
-
-# Message handler for file uploads (TXT to HTML)
-@app.on_message(filters.document & filters.command("html"))
-async def handle_txt_file(client: Client, message: Message):
+# Message handler for file uploads
+@app.on_message(filters.document))
+async def handle_file(client: Client, message: Message):
     # Check if the file is a .txt file
     if not message.document.file_name.endswith(".txt"):
         await message.reply_text("Please upload a .txt file.")
@@ -385,71 +313,15 @@ async def handle_txt_file(client: Client, message: Message):
     with open(html_file_path, "w") as f:
         f.write(html_content)
 
-    # Calculate totals
-    total_videos = len(videos)
-    total_pdfs = len(pdfs)
-    total_others = len(others)
-
     # Send the HTML file to the user
-    await message.reply_document(
-        document=html_file_path,
-        caption=f"✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™\n\n📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}\n\n🎞️: {total_videos}, 📖: {total_pdfs}, 🔖: {total_others}"
-    )
+    await message.reply_document(document=html_file_path, caption=f"✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™\n🎞️: {len(videos)}, 📖: {len(pdfs)}, 🔖: {len(others)}")
 
     # Forward the .txt file to the channel
-    await client.send_document(
-        chat_id=CHANNEL_USERNAME,
-        document=file_path,
-        caption=f"📥Used By - @{message.from_user.username}\n\n📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}"
-    )
+    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
 
     # Clean up files
     os.remove(file_path)
     os.remove(html_file_path)
-
-# Message handler for file uploads (HTML to TXT)
-@app.on_message(filters.document & filters.command("txt"))
-async def handle_html_file(client: Client, message: Message):
-    # Check if the file is an HTML file
-    if not message.document.mime_type == "text/html":
-        await message.reply_text("Please upload an HTML file.")
-        return
-
-    # Download the HTML file
-    file_path = await message.download()
-    
-    # Read the HTML content
-    with open(file_path, 'r', encoding='utf-8') as file:
-        html_content = file.read()
-    
-    # Try extracting URLs using the specific structure first
-    extracted_data = extract_specific_urls(html_content)
-    
-    # If no URLs are found, try extracting from general <a> tags
-    if not extracted_data:
-        extracted_data = extract_general_urls(html_content)
-    
-    # If still no URLs are found, try extracting from onclick attributes in <a> tags
-    if not extracted_data:
-        extracted_data = extract_onclick_urls(html_content)
-    
-    if extracted_data:
-        # Create a .txt file with the extracted data
-        txt_file_path = "extracted_urls.txt"
-        with open(txt_file_path, 'w', encoding='utf-8') as txt_file:
-            txt_file.write("\n".join(extracted_data))
-        
-        # Send the .txt file back to the user
-        await message.reply_document(
-            txt_file_path,
-            caption=f"✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™\n\n📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}"
-        )
-        
-        # Clean up files
-        os.remove(file_path)
-        os.remove(txt_file_path)
-    else:
-        await message.reply("No URLs found in the HTML file.")
 
 # Run the bot
 if __name__ == "__main__":
