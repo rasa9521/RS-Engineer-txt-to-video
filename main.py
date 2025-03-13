@@ -46,7 +46,7 @@ def categorize_urls(urls):
             yt_id = url.split("v=")[-1].split("&")[0] if "v=" in url else url.split("/")[-1]
             new_url = f"https://www.youtube.com/watch?v={yt_id}"
             videos.append((name, new_url))
-        elif any(ext in url for ext in [".m3u8", ".mp4", ".mkv", ".webp", ".m3u", ".epg"]):
+        elif ".m3u8" in url or ".mp4" in url or ".mkv" in url or ".webp" in url or ".m3u" in url or ".epg" in url:
             videos.append((name, url))
         elif "pdf*" in url:
             new_url = f"https://dragoapi.vercel.app/pdf/{url}"
@@ -61,9 +61,6 @@ def categorize_urls(urls):
 # Function to generate HTML file with Video.js player, YouTube player, and download feature
 def generate_html(file_name, videos, pdfs, others):
     file_name_without_extension = os.path.splitext(file_name)[0]
-    total_videos = len(videos)
-    total_pdfs = len(pdfs)
-    total_others = len(others)
 
     video_links = "".join(f'<a href="#" onclick="playVideo(\'{url}\')">{name}</a>' for name, url in videos)
     pdf_links = "".join(f'<a href="{url}" target="_blank">{name}</a> <a href="{url}" download>📥 Download PDF</a>' for name, url in pdfs)
@@ -102,7 +99,7 @@ def generate_html(file_name, videos, pdfs, others):
         .download-button {{ margin-top: 10px; text-align: center; }}
         .download-button a {{ background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }}
         .download-button a:hover {{ background: #0056b3; }}
-        .datetime {{ font-size: 18px; font-weight: bold; margin-top: 20px; color: #007bff; }}
+        .datetime {{ margin-top: 10px; font-size: 18px; font-weight: bold; color: #007bff; }}
     </style>
 </head>
 <body>
@@ -112,7 +109,6 @@ def generate_html(file_name, videos, pdfs, others):
     <p>🔹𝐔𝐬𝐞 𝐓𝐡𝐢𝐬 𝐁𝐨𝐭 𝐟𝐨𝐫 𝐓𝐗𝐓 𝐭𝐨 𝐇𝐓𝐌𝐋 𝐟𝐢𝐥𝐞 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐢𝐨𝐧 : <a href="https://t.me/htmldeveloperbot" target="_blank"> @𝐡𝐭𝐦𝐥𝐝𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫𝐛𝐨𝐭 🚀</a></p>
 
     <div class="datetime" id="datetime">📅 Loading date and time...</div>
-    <div class="datetime">🎞️: {total_videos}, 📖: {total_pdfs}, 🔖: {total_others}</div>
 
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
@@ -265,14 +261,13 @@ def generate_html(file_name, videos, pdfs, others):
         function updateDateTime() {{
             const now = new Date();
             const options = {{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }};
-            const formattedDateTime = now.toLocaleString('en-US', options);
-            document.getElementById('datetime').innerHTML = `📅 ${{formattedDateTime}}`;
+            const formattedDateTime = now.toLocaleDateString('en-US', options);
+            document.getElementById('datetime').innerText = `📅 ${{formattedDateTime}}`;
         }}
 
-        setInterval(updateDateTime, 1000);
         document.addEventListener('DOMContentLoaded', () => {{
             showContent('videos');
-            updateDateTime();
+            setInterval(updateDateTime, 1000);
         }});
     </script>
 </body>
@@ -286,7 +281,7 @@ async def start(client: Client, message: Message):
     await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬.")
 
 # Message handler for file uploads
-@app.on_message(filters.document))
+@app.on_message(filters.document)
 async def handle_file(client: Client, message: Message):
     # Check if the file is a .txt file
     if not message.document.file_name.endswith(".txt"):
@@ -313,8 +308,16 @@ async def handle_file(client: Client, message: Message):
     with open(html_file_path, "w") as f:
         f.write(html_content)
 
+    # Calculate totals
+    total_videos = len(videos)
+    total_pdfs = len(pdfs)
+    total_others = len(others)
+
     # Send the HTML file to the user
-    await message.reply_document(document=html_file_path, caption=f"✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™\n🎞️: {len(videos)}, 📖: {len(pdfs)}, 🔖: {len(others)}")
+    await message.reply_document(
+        document=html_file_path,
+        caption=f"✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™\n🎞️: {total_videos}, 📖: {total_pdfs}, 🔖: {total_others}"
+    )
 
     # Forward the .txt file to the channel
     await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
