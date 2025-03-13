@@ -38,6 +38,23 @@ def extract_general_urls(html_content):
     
     return extracted_data
 
+# Function to extract URLs from onclick attributes in <a> tags
+def extract_onclick_urls(html_content):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    extracted_data = []
+
+    # Find all <a> tags with onclick attributes
+    for a_tag in soup.find_all('a', onclick=True):
+        url_name = a_tag.text.strip()  # Extract the text content (URL name)
+        onclick_attr = a_tag['onclick']
+        
+        # Extract URL from the onclick attribute
+        if "playVideo(" in onclick_attr:
+            url = onclick_attr.split("'")[1]  # Extract URL from playVideo('URL')
+            extracted_data.append(f"{url_name} : {url}")
+    
+    return extracted_data
+
 # Handler for document messages
 @app.on_message(filters.document)
 async def handle_document(client, message):
@@ -53,9 +70,13 @@ async def handle_document(client, message):
         # Try extracting URLs using the specific structure first
         extracted_data = extract_specific_urls(html_content)
         
-        # If no URLs are found, fall back to general <a> tag extraction
+        # If no URLs are found, try extracting from general <a> tags
         if not extracted_data:
             extracted_data = extract_general_urls(html_content)
+        
+        # If still no URLs are found, try extracting from onclick attributes in <a> tags
+        if not extracted_data:
+            extracted_data = extract_onclick_urls(html_content)
         
         if extracted_data:
             # Create a .txt file with the extracted data
