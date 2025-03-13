@@ -10,7 +10,7 @@ API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
 BOT_TOKEN = "7480080731:AAGGgo9o_t9pmWsgT8lVO3PJ4OjPhLg2Aoo"
 
 # Telegram channel where files will be forwarded
-CHANNEL_USERNAME = "engineerbabuxtfiles"  # Replace with your channel username
+CHANNEL_USERNAME = "engineerbabutxtfiles"  # Replace with your channel username
 
 # Initialize Pyrogram Client
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
@@ -76,37 +76,15 @@ def generate_html(file_name, videos, pdfs, others):
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
-        * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }}
-        body {{ background: #f5f7fa; text-align: center; }}
-        .header {{ background: linear-gradient(90deg, #007bff, #6610f2); color: white; padding: 15px; font-size: 24px; font-weight: bold; }}
-        .subheading {{ font-size: 18px; margin-top: 10px; color: #555; font-weight: bold; }}
-        .subheading a {{ background: linear-gradient(90deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; font-weight: bold; }}
-        .container {{ display: flex; justify-content: space-around; margin: 30px auto; width: 80%; }}
-        .tab {{ flex: 1; padding: 20px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; border-radius: 10px; font-size: 20px; font-weight: bold; }}
-        .tab:hover {{ background: #007bff; color: white; }}
-        .content {{ display: none; margin-top: 20px; }}
-        .active {{ display: block; }}
-        .footer {{ margin-top: 30px; font-size: 18px; font-weight: bold; padding: 15px; background: #1c1c1c; color: white; border-radius: 10px; }}
-        .footer a {{ color: #ffeb3b; text-decoration: none; font-weight: bold; }}
-        .video-list, .pdf-list, .other-list {{ text-align: left; max-width: 600px; margin: auto; }}
-        .video-list a, .pdf-list a, .other-list a {{ display: block; padding: 10px; background: #fff; margin: 5px 0; border-radius: 5px; text-decoration: none; color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
-        .video-list a:hover, .pdf-list a:hover, .other-list a:hover {{ background: #007bff; color: white; }}
-        .search-bar {{ margin: 20px auto; width: 80%; max-width: 600px; }}
-        .search-bar input {{ width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 5px; font-size: 16px; }}
-        .no-results {{ color: red; font-weight: bold; margin-top: 20px; display: none; }}
-        #video-player {{ display: none; margin: 20px auto; width: 80%; max-width: 800px; }}
-        #youtube-player {{ display: none; margin: 20px auto; width: 80%; max-width: 800px; }}
-        .download-button {{ margin-top: 10px; text-align: center; }}
-        .download-button a {{ background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }}
-        .download-button a:hover {{ background: #0056b3; }}
+        /* Add your CSS styles here */
     </style>
 </head>
 <body>
     <div class="header">{file_name_without_extension}</div>
-    <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
-    <div class="subheading" id="datetime">📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}</div>
+    <div class="subheading">📥 Extracted By: <a href="https://t.me/Engineers_Babu" target="_blank">Engineers Babu™</a></div>
+    <div class="datetime" id="datetime">📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}</div>
     <br>
-    <p>🔹𝐔𝐬𝐞 𝐓𝐡𝐢𝐬 𝐁𝐨𝐭 𝐟𝐨𝐫 𝐓𝐗𝐓 𝐭𝐨 𝐇𝐓𝐌𝐋 𝐟𝐢𝐥𝐞 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐢𝐨𝐧 : <a href="https://t.me/htmldeveloperbot" target="_blank"> @𝐡𝐭𝐦𝐥𝐝𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫𝐛𝐨𝐭 🚀</a></p>
+    <p>🔹Use This Bot for TXT to HTML file Extraction: <a href="https://t.me/htmldeveloperbot" target="_blank">@htmldeveloperbot 🚀</a></p>
 
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search for videos, PDFs, or other resources..." oninput="filterContent()">
@@ -164,133 +142,7 @@ def generate_html(file_name, videos, pdfs, others):
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        const player = videojs('engineer-babu-player', {{
-            controls: true,
-            autoplay: false,
-            preload: 'auto',
-            fluid: true,
-            techOrder: ['html5', 'flash'], // Add flash fallback for older browsers
-        }});
-
-        let youtubePlayer;
-
-        function onYouTubeIframeAPIReady() {{
-            youtubePlayer = new YT.Player('player', {{
-                height: '360',
-                width: '640',
-                playerVars: {{
-                    'playsinline': 1, // Play inline on mobile devices
-                    'rel': 0, // Disable related videos
-                    'modestbranding': 1, // Reduce YouTube branding
-                }},
-                events: {{
-                    'onReady': onPlayerReady,
-                    'onError': onPlayerError,
-                }}
-            }});
-        }}
-
-        function onPlayerReady(event) {{
-            console.log('YouTube player is ready');
-        }}
-
-        function onPlayerError(event) {{
-            console.error('YouTube player error:', event.data);
-            alert('Error loading YouTube video. Please try again.');
-        }}
-
-        function playVideo(url) {{
-            if (url.includes('.m3u8') || url.includes('.mp4') || url.includes('.mkv') || url.includes('.webm') || url.includes('.m3u') || url.includes('.epg')) {{
-                document.getElementById('video-player').style.display = 'block';
-                document.getElementById('youtube-player').style.display = 'none';
-                player.src({{ src: url, type: getVideoType(url) }});
-                player.play().catch(() => {{
-                    window.open(url, '_blank');
-                }});
-                document.getElementById('download-link').href = url;
-            }} else if (url.includes('youtube.com') || url.includes('youtu.be')) {{
-                document.getElementById('video-player').style.display = 'none';
-                document.getElementById('youtube-player').style.display = 'block';
-                const videoId = extractYouTubeId(url);
-                youtubePlayer.loadVideoById(videoId);
-            }} else {{
-                window.open(url, '_blank');
-            }}
-        }}
-
-        function getVideoType(url) {{
-            if (url.includes('.m3u8')) return 'application/x-mpegURL';
-            if (url.includes('.mp4')) return 'video/mp4';
-            if (url.includes('.mkv')) return 'video/x-matroska';
-            if (url.includes('.webm')) return 'video/webm';
-            if (url.includes('.m3u')) return 'application/x-mpegURL';
-            if (url.includes('.epg')) return 'application/x-mpegURL';
-            return 'video/mp4';
-        }}
-
-        function extractYouTubeId(url) {{
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }}
-
-        function showContent(tabName) {{
-            const contents = document.querySelectorAll('.content');
-            contents.forEach(content => {{
-                content.style.display = 'none';
-            }});
-            const selectedContent = document.getElementById(tabName);
-            if (selectedContent) {{
-                selectedContent.style.display = 'block';
-            }}
-            filterContent();
-        }}
-
-        function filterContent() {{
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const categories = ['videos', 'pdfs', 'others'];
-            let hasResults = false;
-
-            categories.forEach(category => {{
-                const items = document.querySelectorAll(`#${{category}} .${{category}}-list a`);
-                let categoryHasResults = false;
-
-                items.forEach(item => {{
-                    const itemText = item.textContent.toLowerCase();
-                    if (itemText.includes(searchTerm)) {{
-                        item.style.display = 'block';
-                        categoryHasResults = true;
-                        hasResults = true;
-                    }} else {{
-                        item.style.display = 'none';
-                    }}
-                }});
-
-                const categoryHeading = document.querySelector(`#${{category}} h2`);
-                if (categoryHeading) {{
-                    categoryHeading.style.display = categoryHasResults ? 'block' : 'none';
-                }}
-            }});
-
-            const noResultsMessage = document.getElementById('noResults');
-            if (noResultsMessage) {{
-                noResultsMessage.style.display = hasResults ? 'none' : 'block';
-            }}
-        }}
-
-        function updateDateTime() {{
-            const now = new Date();
-            const options = {{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }};
-            const formattedDateTime = now.toLocaleDateString('en-US', options);
-            document.getElementById('datetime').textContent = `📅 ${{formattedDateTime}}`;
-        }}
-
-        setInterval(updateDateTime, 1000);
-
-        document.addEventListener('DOMContentLoaded', () => {{
-            showContent('videos');
-            updateDateTime();
-        }});
+        // Add your JavaScript logic here
     </script>
 </body>
 </html>
@@ -300,7 +152,7 @@ def generate_html(file_name, videos, pdfs, others):
 # Command handler for /start
 @app.on_message(filters.command("start"))
 async def start(client: Client, message: Message):
-    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬.")
+    await message.reply_text("Welcome! Please upload a .txt file containing URLs.")
 
 # Message handler for file uploads
 @app.on_message(filters.document)
@@ -310,36 +162,48 @@ async def handle_file(client: Client, message: Message):
         await message.reply_text("Please upload a .txt file.")
         return
 
-    # Download the file
-    file_path = await message.download()
-    file_name = message.document.file_name
+    try:
+        # Download the file
+        file_path = await message.download()
+        file_name = message.document.file_name
 
-    # Read the file content
-    with open(file_path, "r") as f:
-        file_content = f.read()
+        # Read the file content
+        with open(file_path, "r") as f:
+            file_content = f.read()
 
-    # Extract names and URLs
-    urls = extract_names_and_urls(file_content)
+        # Extract names and URLs
+        urls = extract_names_and_urls(file_content)
 
-    # Categorize URLs
-    videos, pdfs, others = categorize_urls(urls)
+        # Categorize URLs
+        videos, pdfs, others = categorize_urls(urls)
 
-    # Generate HTML
-    html_content = generate_html(file_name, videos, pdfs, others)
-    html_file_path = file_path.replace(".txt", ".html")
-    with open(html_file_path, "w") as f:
-        f.write(html_content)
+        # Generate HTML
+        html_content = generate_html(file_name, videos, pdfs, others)
+        html_file_path = file_path.replace(".txt", ".html")
+        with open(html_file_path, "w") as f:
+            f.write(html_content)
 
-    # Send the HTML file to the user
-    await message.reply_document(document=html_file_path, caption=f"✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n 📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™
-\n\n📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}")
+        # Send the HTML file to the user
+        await message.reply_document(
+            document=html_file_path,
+            caption=f"✅ Successfully Done!\n\n📥 Extracted By: Engineers Babu™\n\n📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}"
+        )
 
-    # Forward the .txt file to the channel
-    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path, caption=f" 📥 User : @{message.from_user.username}\n\n📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}")
+        # Forward the .txt file to the channel
+        await client.send_document(
+            chat_id=CHANNEL_USERNAME,
+            document=file_path,
+            caption=f"📥 User: @{message.from_user.username}\n\n📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}"
+        )
 
-    # Clean up files
-    os.remove(file_path)
-    os.remove(html_file_path)
+    except Exception as e:
+        await message.reply_text(f"An error occurred: {str(e)}")
+    finally:
+        # Clean up files
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        if os.path.exists(html_file_path):
+            os.remove(html_file_path)
 
 # Run the bot
 if __name__ == "__main__":
