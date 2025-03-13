@@ -1,100 +1,58 @@
+
 import os
-import re
-import requests
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from bs4 import BeautifulSoup
 
 # Replace these with your credentials
 API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
 BOT_TOKEN = "7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"
-# Initialize the Pyrogram client
+
+# Initialize the Pyrogram Client
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-# Function to extract MPD and KEY_STRING from the JSON response
-def extract_mpd_and_keys(url):
-    try:
-        print(f"Fetching data from URL: {url}")
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        mpd_url = data.get("MPD", "")
-        key_string = data.get("KEY_STRING", "")
-        print(f"Extracted MPD: {mpd_url}")
-        print(f"Extracted KEY_STRING: {key_string}")
-        return mpd_url, key_string
-    except Exception as e:
-        print(f"Error extracting MPD and keys: {e}")
-        return None, None
+# Function to extract URLs and names from HTML
+def extract_urls_from_html(html_content):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    link_items = soup.find_all('div', class_='link-item')
+    
+    extracted_data = []
+    for item in link_items:
+        link_name = item.find('span', class_='link-name').text.strip()
+        link_url = item.find('button', class_='link-button')['onclick']
+        link_url = link_url.split("'")[1]  # Extract URL from onclick attribute
+        extracted_data.append(f"{link_name} : {link_url}")
+    
+    return extracted_data
 
-# Function to replace raw_url with final_url in the text file while preserving the name
-def replace_urls_in_file(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            content = file.read()
-
-        # Regex to find URLs while preserving the name
-        url_pattern = re.compile(r'(.*?)(https://media-cdn\.classplusapp\.com/drm/[^\s]+)')
-        new_content = content
-
-        for match in url_pattern.finditer(content):
-            name = match.group(1).strip()  # Extract the name
-            raw_url = match.group(2)  # Extract the URL
-            print(f"Processing URL: {raw_url}")
-            new_url = f"https://dragoapi.vercel.app/classplus?link={raw_url}"
-            mpd_url, key_string = extract_mpd_and_keys(new_url)
-            if mpd_url and key_string:
-                final_url = f"{mpd_url} {key_string}"
-                # Replace only the URL while keeping the name intact
-                new_content = new_content.replace(raw_url, final_url)
-                print(f"Replaced URL: {final_url}")
-
-        # Write the modified content to a new file
-        new_file_path = file_path.replace('.txt', '_modified.txt')
-        with open(new_file_path, 'w') as new_file:
-            new_file.write(new_content)
-
-        print(f"New file created: {new_file_path}")
-        return new_file_path
-    except Exception as e:
-        print(f"Error in replace_urls_in_file: {e}")
-        return None
-
-# Handler for /start command
-@app.on_message(filters.command("start"))
-def start(client: Client, message: Message):
-    message.reply_text("Send me a .txt file to process!")
-
-# Handler for receiving documents
+# Handler for document messages
 @app.on_message(filters.document)
-def handle_file(client: Client, message: Message):
-    try:
-        # Check if the file is a .txt file
-        if message.document.file_name.endswith('.txt'):
-            # Download the file
-            print(f"Downloading file: {message.document.file_name}")
-            file_path = message.download(file_name=message.document.file_name)
-            print(f"File downloaded to: {file_path}")
-
-            # Process the file
-            new_file_path = replace_urls_in_file(file_path)
-            if new_file_path:
-                # Send the modified file back to the user
-                print(f"Sending modified file: {new_file_path}")
-                message.reply_document(new_file_path)
-                
-                # Clean up: Delete the original and modified files
-                os.remove(file_path)
-                os.remove(new_file_path)
-                print("Temporary files deleted.")
-            else:
-                message.reply_text("Error processing the file. Please try again.")
-        else:
-            message.reply_text("Please send a .txt file.")
-    except Exception as e:
-        print(f"Error in handle_file: {e}")
-        message.reply_text("An error occurred. Please try again.")
+async def handle_document(client, message):
+    # Check if the document is an HTML file
+    if message.document.mime_type == "text/html":
+        # Download the HTML file
+        file_path = await message.download()
+        
+        # Read the HTML content
+        with open(file_path, 'r', encoding='utf-8') as file:
+            html_content = file.read()
+        
+        # Extract URLs and names
+        extracted_data = extract_urls_from_html(html_content)
+        
+        # Create a .txt file with the extracted data
+        txt_file_path = "extracted_urls.txt"
+        with open(txt_file_path, 'w', encoding='utf-8') as txt_file:
+            txt_file.write("\n".join(extracted_data))
+        
+        # Send the .txt file back to the user
+        await message.reply_document(txt_file_path)
+        
+        # Clean up files
+        os.remove(file_path)
+        os.remove(txt_file_path)
+    else:
+        await message.reply("Please send an HTML file.")
 
 # Start the bot
-print("Bot is running...")
 app.run()
