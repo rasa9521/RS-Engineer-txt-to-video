@@ -10,9 +10,9 @@ BOT_TOKEN = "7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"
 # Initialize Pyrogram client
 app = Client(
     "html_converter_bot",
-    api_id="YOUR_API_ID",
-    api_hash="YOUR_API_HASH",
-    bot_token="YOUR_BOT_TOKEN"
+    api_id="API_ID",
+    api_hash="API_HASH",
+    bot_token="BOT_TOKEN"
 )
 
 def parse_content(lines):
