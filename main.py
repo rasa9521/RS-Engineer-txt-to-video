@@ -320,7 +320,11 @@ async def handle_file(client: Client, message: Message):
     )
 
     # Forward the .txt file to the channel
-    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path, caption=f"📥 User: @{message.from_user.username})
+    await client.send_document(
+        chat_id=CHANNEL_USERNAME,
+        document=file_path,
+        caption=f"📥 User: @{message.from_user.username}\n\n📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}"
+    )
 
     # Clean up files
     os.remove(file_path)
