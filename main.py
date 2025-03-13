@@ -54,4 +54,5 @@ async def handle_document(client, message):
         await message.reply("Please send an HTML file.")
 
 # Start the bot
+print("Bot is running...")
 app.run()
