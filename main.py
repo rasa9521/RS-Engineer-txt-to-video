@@ -105,7 +105,7 @@ def generate_html(file_name, videos, pdfs, others):
 <body>
     <div class="header">{file_name_without_extension}</div>
     <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div><br>
-    <div class="datetime" id="datetime">📅 Loading date and time...</div><br>
+    <div class="datetime" id="datetime">📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}</div><br>
     <p>🔹𝐔𝐬𝐞 𝐓𝐡𝐢𝐬 𝐁𝐨𝐭 𝐟𝐨𝐫 𝐓𝐗𝐓 𝐭𝐨 𝐇𝐓𝐌𝐋 𝐟𝐢𝐥𝐞 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐢𝐨𝐧 : <a href="https://t.me/htmldeveloperbot" target="_blank"> @𝐡𝐭𝐦𝐥𝐝𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫𝐛𝐨𝐭 </a></p>
 
     <div class="search-bar">
@@ -310,6 +310,9 @@ async def handle_file(client: Client, message: Message):
     total_videos = len(videos)
     total_pdfs = len(pdfs)
     total_others = len(others)
+
+    # Get the user's username or fallback to their first name
+    user_identifier = message.from_user.username if message.from_user.username else message.from_user.first_name
 
     # Send the HTML file to the user
     await message.reply_document(
