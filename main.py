@@ -3,16 +3,12 @@ import os
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
-API_ID = "21705536"
-API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
-BOT_TOKEN = "7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"
-
 # Initialize Pyrogram client
 app = Client(
     "html_converter_bot",
-    api_id="API_ID",
-    api_hash="API_HASH",
-    bot_token="BOT_TOKEN"
+    api_id="21705536",
+    api_hash="c5bb241f6e3ecf33fe68a444e288de2d",
+    bot_token="7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"
 )
 
 def parse_content(lines):
