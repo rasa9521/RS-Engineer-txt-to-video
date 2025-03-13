@@ -107,6 +107,7 @@ def generate_html(file_name, videos, pdfs, others):
     <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div>
     <br>
     <div class="datetime" id="datetime">📅 Loading date and time...</div>
+    <br>
     <p>🔹𝐔𝐬𝐞 𝐓𝐡𝐢𝐬 𝐁𝐨𝐭 𝐟𝐨𝐫 𝐓𝐗𝐓 𝐭𝐨 𝐇𝐓𝐌𝐋 𝐟𝐢𝐥𝐞 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐢𝐨𝐧 : <a href="https://t.me/htmldeveloperbot" target="_blank"> @𝐡𝐭𝐦𝐥𝐝𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫𝐛𝐨𝐭 </a></p>
 
     <div class="search-bar">
@@ -315,11 +316,11 @@ async def handle_file(client: Client, message: Message):
     # Send the HTML file to the user
     await message.reply_document(
         document=html_file_path,
-        caption=f"✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™\n\n🎞️ 𝐕𝐢𝐝𝐞𝐨𝐬 : {total_videos}, 📖 𝐏𝐝𝐟𝐬 : {total_pdfs}, 🔖 𝐎𝐭𝐡𝐞𝐫𝐬 : {total_others}"
+        caption=f"🎞️ 𝐕𝐢𝐝𝐞𝐨𝐬 : {total_videos}, 📚 𝐏𝐝𝐟𝐬 : {total_pdfs}, 💾 𝐎𝐭𝐡𝐞𝐫𝐬 : {total_others}\n\n✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™"
     )
 
     # Forward the .txt file to the channel
-    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path)
+    await client.send_document(chat_id=CHANNEL_USERNAME, document=file_path, caption=f"📥 User: @{message.from_user.username})
 
     # Clean up files
     os.remove(file_path)
