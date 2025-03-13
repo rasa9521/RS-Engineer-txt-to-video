@@ -321,7 +321,7 @@ async def handle_file(client: Client, message: Message):
     await client.send_document(
         chat_id=CHANNEL_USERNAME,
         document=file_path,
-        caption=f"📥 User: @{message.from_user.username} "
+        caption=f"📥 User: @{user_identifier} "
     )
 
     # Clean up files
