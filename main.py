@@ -1,13 +1,19 @@
 import os
+import logging
 import requests
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from datetime import datetime
+import json
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Replace with your API ID, API Hash, and Bot Token
-API_ID = "21705536"
-API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
-BOT_TOKEN = "7480080731:AAGGgo9o_t9pmWsgT8lVO3PJ4OjPhLg2Aoo"
+API_ID = os.getenv("21705536")
+API_HASH = os.getenv("c5bb241f6e3ecf33fe68a444e288de2d")
+BOT_TOKEN = os.getenv("7480080731:AAGGgo9o_t9pmWsgT8lVO3PJ4OjPhLg2Aoo")
 
 # Telegram channel where files will be forwarded
 CHANNEL_USERNAME = "engineerbabuxtfiles"  # Replace with your channel username
@@ -100,12 +106,14 @@ def generate_html(file_name, videos, pdfs, others):
         .download-button a {{ background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }}
         .download-button a:hover {{ background: #0056b3; }}
         .datetime {{ margin-top: 10px; font-size: 18px; font-weight: bold; color: #2F4F4F; }}
+        mark {{ background-color: #ffeb3b; padding: 0 2px; border-radius: 2px; }}
+        .selected-item {{ background: #007bff !important; color: white !important; }}
     </style>
 </head>
 <body>
     <div class="header">{file_name_without_extension}</div>
     <div class="subheading">📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : <a href="https://t.me/Engineers_Babu" target="_blank">𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™</a></div><br>
-    <div class="datetime" id="datetime">📅 {datetime.now().strftime('%A %d %B, %Y | ⏰ %I:%M:%S %p')}</div><br>
+    <div class="datetime" id="datetime">📅 Loading...</div><br>
     <p>🔹𝐔𝐬𝐞 𝐓𝐡𝐢𝐬 𝐁𝐨𝐭 𝐟𝐨𝐫 𝐓𝐗𝐓 𝐭𝐨 𝐇𝐓𝐌𝐋 𝐟𝐢𝐥𝐞 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐢𝐨𝐧 : <a href="https://t.me/htmldeveloperbot" target="_blank"> @𝐡𝐭𝐦𝐥𝐝𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫𝐛𝐨𝐭 </a></p>
 
     <div class="search-bar">
@@ -168,23 +176,43 @@ def generate_html(file_name, videos, pdfs, others):
             controls: true,
             autoplay: false,
             preload: 'auto',
-            fluid: true,
+            fluid: true
         }});
 
         let youtubePlayer;
+        let searchTimeout;
+        let currentSearchIndex = -1;
+        let searchResults = [];
 
         function onYouTubeIframeAPIReady() {{
             youtubePlayer = new YT.Player('player', {{
                 height: '360',
                 width: '640',
                 events: {{
-                    'onReady': onPlayerReady,
+                    'onReady': onPlayerReady
                 }}
             }});
         }}
 
         function onPlayerReady(event) {{
             // You can add additional functionality here if needed
+        }}
+
+        function debounce(func, wait) {{
+            return function executedFunction(...args) {{
+                const later = () => {{
+                    clearTimeout(searchTimeout);
+                    func(...args);
+                }};
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(later, wait);
+            }};
+        }}
+
+        function highlightText(text, searchTerm) {{
+            if (!searchTerm) return text;
+            const regex = new RegExp(`(${{searchTerm}})`, 'gi');
+            return text.replace(regex, '<mark>$1</mark>');
         }}
 
         function playVideo(url) {{
@@ -228,6 +256,13 @@ def generate_html(file_name, videos, pdfs, others):
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categories = ['videos', 'pdfs', 'others'];
             let hasResults = false;
+            searchResults = [];
+            currentSearchIndex = -1;
+
+            // Remove selected-item class from all items
+            document.querySelectorAll('.video-list a, .pdf-list a, .other-list a').forEach(item => {{
+                item.classList.remove('selected-item');
+            }});
 
             categories.forEach(category => {{
                 const items = document.querySelectorAll(`#${{category}} .${{category}}-list a`);
@@ -235,10 +270,19 @@ def generate_html(file_name, videos, pdfs, others):
 
                 items.forEach(item => {{
                     const itemText = item.textContent.toLowerCase();
-                    if (itemText.includes(searchTerm)) {{
+                    const itemUrl = item.href.toLowerCase();
+                    
+                    if (itemText.includes(searchTerm) || itemUrl.includes(searchTerm)) {{
                         item.style.display = 'block';
                         categoryHasResults = true;
                         hasResults = true;
+                        searchResults.push(item);
+                        
+                        // Highlight matching text
+                        if (searchTerm) {{
+                            const originalText = item.textContent;
+                            item.innerHTML = highlightText(originalText, searchTerm);
+                        }}
                     }} else {{
                         item.style.display = 'none';
                     }}
@@ -256,6 +300,30 @@ def generate_html(file_name, videos, pdfs, others):
             }}
         }}
 
+        function handleKeyNavigation(e) {{
+            if (searchResults.length === 0) return;
+
+            // Remove selected-item class from all items
+            searchResults.forEach(item => {{
+                item.classList.remove('selected-item');
+            }});
+
+            if (e.key === 'ArrowDown') {{
+                e.preventDefault();
+                currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
+                searchResults[currentSearchIndex].classList.add('selected-item');
+                searchResults[currentSearchIndex].scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+            }} else if (e.key === 'ArrowUp') {{
+                e.preventDefault();
+                currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
+                searchResults[currentSearchIndex].classList.add('selected-item');
+                searchResults[currentSearchIndex].scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+            }} else if (e.key === 'Enter' && currentSearchIndex >= 0) {{
+                e.preventDefault();
+                searchResults[currentSearchIndex].click();
+            }}
+        }}
+
         function updateDateTime() {{
             const now = new Date();
             const options = {{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }};
@@ -266,6 +334,13 @@ def generate_html(file_name, videos, pdfs, others):
         document.addEventListener('DOMContentLoaded', () => {{
             showContent('videos');
             setInterval(updateDateTime, 1000);
+            
+            // Add debounced search
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', debounce(filterContent, 300));
+            
+            // Add keyboard navigation
+            searchInput.addEventListener('keydown', handleKeyNavigation);
         }});
     </script>
 </body>
@@ -281,57 +356,65 @@ async def start(client: Client, message: Message):
 # Message handler for file uploads
 @app.on_message(filters.document)
 async def handle_file(client: Client, message: Message):
-    # Check if the file is a .txt file
-    if not message.document.file_name.endswith(".txt"):
-        await message.reply_text("Please upload a .txt file.")
-        return
+    try:
+        # Check if the file is a .txt file
+        if not message.document.file_name.endswith(".txt"):
+            await message.reply_text("Please upload a .txt file.")
+            return
 
-    # Download the file
-    file_path = await message.download()
-    file_name = message.document.file_name
+        # Download the file
+        file_path = await message.download()
+        file_name = message.document.file_name
 
-    # Read the file content
-    with open(file_path, "r") as f:
-        file_content = f.read()
+        # Read the file content
+        with open(file_path, "r") as f:
+            file_content = f.read()
 
-    # Extract names and URLs
-    urls = extract_names_and_urls(file_content)
+        # Extract names and URLs
+        urls = extract_names_and_urls(file_content)
 
-    # Categorize URLs
-    videos, pdfs, others = categorize_urls(urls)
+        # Categorize URLs
+        videos, pdfs, others = categorize_urls(urls)
 
-    # Generate HTML
-    html_content = generate_html(file_name, videos, pdfs, others)
-    html_file_path = file_path.replace(".txt", ".html")
-    with open(html_file_path, "w") as f:
-        f.write(html_content)
+        # Generate HTML
+        html_content = generate_html(file_name, videos, pdfs, others)
+        html_file_path = file_path.replace(".txt", ".html")
+        with open(html_file_path, "w") as f:
+            f.write(html_content)
 
-    # Calculate totals
-    total_videos = len(videos)
-    total_pdfs = len(pdfs)
-    total_others = len(others)
+        # Calculate totals
+        total_videos = len(videos)
+        total_pdfs = len(pdfs)
+        total_others = len(others)
 
-    # Get the user's username or fallback to their first name
-    user_identifier = message.from_user.username if message.from_user.username else message.from_user.first_name
+        # Get the user's username or fallback to their first name
+        user_identifier = message.from_user.username if message.from_user.username else message.from_user.first_name
 
-    # Send the HTML file to the user
-    await message.reply_document(
-        document=html_file_path,
-        caption=f"🎞️ 𝐕𝐢𝐝𝐞𝐨𝐬 : {total_videos}, 📚 𝐏𝐝𝐟𝐬 : {total_pdfs}, 💾 𝐎𝐭𝐡𝐞𝐫𝐬 : {total_others}\n\n✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™"
-    )
+        # Send the HTML file to the user
+        await message.reply_document(
+            document=html_file_path,
+            caption=f"🎞️ 𝐕𝐢𝐝𝐞𝐨𝐬 : {total_videos}, 📚 𝐏𝐝𝐟𝐬 : {total_pdfs}, 💾 𝐎𝐭𝐡𝐞𝐫𝐬 : {total_others}\n\n✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐃𝐨𝐧𝐞!\n\n📥 𝐄𝐱𝐭𝐫𝐚𝐜𝐭𝐞𝐝 𝐁𝐲 : 𝕰𝖓𝖌𝖎𝖓𝖊𝖊𝖗𝖘 𝕭𝖆𝖇𝖚™"
+        )
 
-    # Forward the .txt file to the channel
-    await client.send_document(
-        chat_id=CHANNEL_USERNAME,
-        document=file_path,
-        caption=f"📥 User: @{user_identifier} "
-    )
+        # Forward the .txt file to the channel
+        await client.send_document(
+            chat_id=CHANNEL_USERNAME,
+            document=file_path,
+            caption=f"📥 User: @{user_identifier} "
+        )
 
-    # Clean up files
-    os.remove(file_path)
-    os.remove(html_file_path)
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        await message.reply_text("An error occurred while processing your file. Please try again.")
+
+    finally:
+        # Clean up files
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        if os.path.exists(html_file_path):
+            os.remove(html_file_path)
 
 # Run the bot
 if __name__ == "__main__":
-    print("Bot is running...")
+    logger.info("Bot is running...")
     app.run()
