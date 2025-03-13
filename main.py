@@ -1,57 +1,182 @@
+import re
 import os
 from pyrogram import Client, filters
-from bs4 import BeautifulSoup
+from pyrogram.types import Message
 
-# Replace these with your credentials
 API_ID = "21705536"
 API_HASH = "c5bb241f6e3ecf33fe68a444e288de2d"
 BOT_TOKEN = "7694154149:AAF2RNkhIkTnYqt4uG9AaqQyJwHKQp5fzpE"
 
-# Initialize the Pyrogram Client
-app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+# Initialize Pyrogram client
+app = Client(
+    "html_converter_bot",
+    api_id="YOUR_API_ID",
+    api_hash="YOUR_API_HASH",
+    bot_token="YOUR_BOT_TOKEN"
+)
 
-# Function to extract URLs and names from HTML
-def extract_urls_from_html(html_content):
-    soup = BeautifulSoup(html_content, 'html.parser')
-    link_items = soup.find_all('div', class_='link-item')
+def parse_content(lines):
+    """
+    Parse the content of the .txt file into a structured dictionary.
+    """
+    structure = {}
+    for line in lines:
+        if not line.strip():
+            continue
+        
+        # Extract components using regex
+        parts = re.findall(r'\((.*?)\)', line)
+        url = re.search(r'https?://\S+', line).group()
+        
+        if not parts or not url:
+            continue
+            
+        # Extract title and resource type
+        title_part = line.split(':')[0]
+        title = re.sub(r'\([^)]*\)', '', title_part).strip()
+        resource_type = 'video' if 'm3u8' in url else 'pdf'
+        pdf_version = None
+        
+        # Check for pdf versions
+        if '(pdf-2)' in line:
+            resource_type = 'pdf'
+            pdf_version = 2
+        elif '(pdf)' in line:
+            resource_type = 'pdf'
+            pdf_version = 1
+        
+        # Build hierarchy
+        current = structure
+        for part in parts[:-1]:  # Last part is author (perospero)
+            if part not in current:
+                current[part] = {}
+            current = current[part]
+        
+        # Add resource
+        if title not in current:
+            current[title] = {}
+        
+        if resource_type == 'video':
+            current[title]['video'] = url
+        else:
+            if 'pdfs' not in current[title]:
+                current[title]['pdfs'] = {}
+            current[title]['pdfs'][f'pdf{"" if pdf_version == 1 else "-2"}'] = url
     
-    extracted_data = []
-    for item in link_items:
-        link_name = item.find('span', class_='link-name').text.strip()
-        link_url = item.find('button', class_='link-button')['onclick']
-        link_url = link_url.split("'")[1]  # Extract URL from onclick attribute
-        extracted_data.append(f"{link_name} : {link_url}")
-    
-    return extracted_data
+    return structure
 
-# Handler for document messages
+def generate_html(structure, title):
+    """
+    Generate HTML content from the parsed structure.
+    """
+    html_template = f"""<!DOCTYPE html>
+<html>
+    <head>
+        <title>{title}</title>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <link href="https://devsfiles.netlify.app/stiq.css" rel="stylesheet"/>
+        <link href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" rel="stylesheet"/>
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    </head>
+    <body>
+        <div data-role="page" id="pageone">
+            <div data-role="header">
+                <h1>{title}</h1>
+            </div>
+            <div class="ui-content" data-role="main">
+                {{content}}
+            </div>
+            <div data-role="footer">
+                <h1>Made with ❤️ By @Engineer_Babu</h1>
+            </div>
+        </div>
+    </body>
+</html>"""
+    
+    def build_section(data, level=0):
+        html = []
+        for key, value in data.items():
+            if level == 0:
+                html.append('<div data-role="collapsible">')
+                html.append(f'<h1>{key}</h1>')
+                html.append(build_section(value, level+1))
+                html.append('</div>')
+            elif isinstance(value, dict):
+                if 'video' in value or 'pdfs' in value:
+                    # Resource item
+                    html.append('<div data-role="collapsible">')
+                    html.append(f'<h1>{key}</h1>')
+                    
+                    if 'video' in value:
+                        html.append(f'<p class="video"><a class="studyiq" href="{value["video"]}" target="__blank">Click Here</a></p>')
+                    
+                    if 'pdfs' in value:
+                        for pdf_name, pdf_url in value['pdfs'].items():
+                            html.append('<div data-role="collapsible">')
+                            html.append(f'<h1>{pdf_name}</h1>')
+                            html.append(f'<p class="video"><a class="studyiq" href="{pdf_url}" target="__blank">Click Here</a></p>')
+                            html.append('</div>')
+                    
+                    html.append('</div>')
+                else:
+                    # Subcategory
+                    html.append('<div data-role="collapsible">')
+                    html.append(f'<h1>{key}</h1>')
+                    html.append(build_section(value, level+1))
+                    html.append('</div>')
+        return '\n'.join(html)
+    
+    content = build_section(structure)
+    return html_template.format(content=content)
+
 @app.on_message(filters.document)
-async def handle_document(client, message):
-    # Check if the document is an HTML file
-    if message.document.mime_type == "text/html":
-        # Download the HTML file
+async def handle_document(client: Client, message: Message):
+    """
+    Handle incoming .txt files and convert them to HTML.
+    """
+    try:
+        # Check if the file is a .txt file
+        if not message.document.file_name.endswith('.txt'):
+            await message.reply("Please send a .txt file.")
+            return
+        
+        # Download the file
         file_path = await message.download()
         
-        # Read the HTML content
-        with open(file_path, 'r', encoding='utf-8') as file:
-            html_content = file.read()
+        # Read the file content
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
         
-        # Extract URLs and names
-        extracted_data = extract_urls_from_html(html_content)
+        # Get the title from the file name (without extension)
+        title = os.path.splitext(message.document.file_name)[0]
         
-        # Create a .txt file with the extracted data
-        txt_file_path = "extracted_urls.txt"
-        with open(txt_file_path, 'w', encoding='utf-8') as txt_file:
-            txt_file.write("\n".join(extracted_data))
+        # Parse the content and generate HTML
+        structure = parse_content(lines)
+        html_content = generate_html(structure, title)
         
-        # Send the .txt file back to the user
-        await message.reply_document(txt_file_path)
+        # Save the HTML file
+        output_file = f"{title}.html"
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        
+        # Send the HTML file back to the user
+        await message.reply_document(output_file)
         
         # Clean up files
         os.remove(file_path)
-        os.remove(txt_file_path)
-    else:
-        await message.reply("Please send an HTML file.")
+        os.remove(output_file)
+        
+    except Exception as e:
+        await message.reply(f"Error processing file: {str(e)}")
 
-# Start the bot
-app.run()
+@app.on_message(filters.command("start"))
+async def start(client: Client, message: Message):
+    """
+    Start command handler.
+    """
+    await message.reply("Send me a .txt file to convert it into an HTML file!")
+
+if __name__ == "__main__":
+    print("Bot is running...")
+    app.run()
