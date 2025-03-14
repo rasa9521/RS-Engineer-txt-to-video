@@ -46,7 +46,20 @@ def categorize_urls(urls):
             yt_id = url.split("v=")[-1].split("&")[0] if "v=" in url else url.split("/")[-1]
             new_url = f"https://www.youtube.com/watch?v={yt_id}"
             videos.append((name, new_url))
-        elif ".m3u8" in url or ".mp4" in url or ".mkv" in url or ".webp" in url or ".m3u" in url or ".epg" in url:
+        elif (
+            ".m3u8" in url
+            or ".mp4" in url
+            or ".mkv" in url
+            or ".webm" in url
+            or ".MP4" in url
+            or ".AVI" in url
+            or ".MOV" in url
+            or ".WMV" in url
+            or ".MKV" in url
+            or ".FLV" in url
+            or ".MPEG" in url
+            or ".mpd" in url
+        ):
             videos.append((name, url))
         elif "pdf*" in url:
             new_url = f"https://dragoapi.vercel.app/pdf/{url}"
@@ -188,7 +201,20 @@ def generate_html(file_name, videos, pdfs, others):
         }}
 
         function playVideo(url) {{
-            if (url.includes('.m3u8') || url.includes('.mp4') || url.includes('.mkv') || url.includes('.webp') || url.includes('.m3u') || url.includes('.epg')) {{
+            if (
+                url.includes('.m3u8') ||
+                url.includes('.mp4') ||
+                url.includes('.mkv') ||
+                url.includes('.webm') ||
+                url.includes('.MP4') ||
+                url.includes('.AVI') ||
+                url.includes('.MOV') ||
+                url.includes('.WMV') ||
+                url.includes('.MKV') ||
+                url.includes('.FLV') ||
+                url.includes('.MPEG') ||
+                url.includes('.mpd')
+            ) {{
                 document.getElementById('video-player').style.display = 'block';
                 document.getElementById('youtube-player').style.display = 'none';
                 player.src({{ src: url, type: 'application/x-mpegURL' }});
