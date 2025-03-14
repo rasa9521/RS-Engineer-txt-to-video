@@ -43,9 +43,7 @@ def categorize_urls(urls):
             new_url = f"https://player.muftukmall.site/?id={vid_id}"
             videos.append((name, new_url))
         elif "youtube.com/embed" in url or "youtu.be" in url or "youtube.com/watch" in url:
-            yt_id = url.split("v=")[-1].split("&")[0] if "v=" in url else url.split("/")[-1]
-            new_url = f"https://www.youtube.com/watch?v={yt_id}"
-            videos.append((name, new_url))
+            videos.append((name, url))  # Keep YouTube URLs unchanged
         elif (
             ".m3u8" in url
             or ".mp4" in url
@@ -225,17 +223,10 @@ def generate_html(file_name, videos, pdfs, others):
             }} else if (url.includes('youtube.com') || url.includes('youtu.be')) {{
                 document.getElementById('video-player').style.display = 'none';
                 document.getElementById('youtube-player').style.display = 'block';
-                const videoId = extractYouTubeId(url);
-                youtubePlayer.loadVideoById(videoId);
+                youtubePlayer.loadVideoByUrl(url);  // Directly load the YouTube URL
             }} else {{
                 window.open(url, '_blank');
             }}
-        }}
-
-        function extractYouTubeId(url) {{
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
         }}
 
         function showContent(tabName) {{
