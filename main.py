@@ -69,6 +69,31 @@ def categorize_urls(urls):
 
     return videos, pdfs, others
 
+# Function to get MIME type based on file extension
+def get_mime_type(url):
+    if ".m3u8" in url:
+        return "application/x-mpegURL"
+    elif ".mp4" in url:
+        return "video/mp4"
+    elif ".mkv" in url:
+        return "video/x-matroska"
+    elif ".webm" in url:
+        return "video/webm"
+    elif ".avi" in url:
+        return "video/x-msvideo"
+    elif ".mov" in url:
+        return "video/quicktime"
+    elif ".wmv" in url:
+        return "video/x-ms-wmv"
+    elif ".flv" in url:
+        return "video/x-flv"
+    elif ".mpeg" in url:
+        return "video/mpeg"
+    elif ".mpd" in url:
+        return "application/dash+xml"
+    else:
+        return "video/mp4"  # Default to mp4 if format is unknown
+
 # Function to generate HTML file with Video.js player, YouTube player, and download feature
 def generate_html(file_name, videos, pdfs, others):
     file_name_without_extension = os.path.splitext(file_name)[0]
@@ -215,7 +240,8 @@ def generate_html(file_name, videos, pdfs, others):
             ) {{
                 document.getElementById('video-player').style.display = 'block';
                 document.getElementById('youtube-player').style.display = 'none';
-                player.src({{ src: url, type: 'application/x-mpegURL' }});
+                const mimeType = getMimeType(url);
+                player.src({{ src: url, type: mimeType }});
                 player.play().catch(() => {{
                     window.open(url, '_blank');
                 }});
@@ -226,6 +252,32 @@ def generate_html(file_name, videos, pdfs, others):
                 youtubePlayer.loadVideoByUrl(url);  // Directly load the YouTube URL
             }} else {{
                 window.open(url, '_blank');
+            }}
+        }}
+
+        function getMimeType(url) {{
+            if (url.includes('.m3u8')) {{
+                return 'application/x-mpegURL';
+            }} else if (url.includes('.mp4')) {{
+                return 'video/mp4';
+            }} else if (url.includes('.mkv')) {{
+                return 'video/x-matroska';
+            }} else if (url.includes('.webm')) {{
+                return 'video/webm';
+            }} else if (url.includes('.avi')) {{
+                return 'video/x-msvideo';
+            }} else if (url.includes('.mov')) {{
+                return 'video/quicktime';
+            }} else if (url.includes('.wmv')) {{
+                return 'video/x-ms-wmv';
+            }} else if (url.includes('.flv')) {{
+                return 'video/x-flv';
+            }} else if (url.includes('.mpeg')) {{
+                return 'video/mpeg';
+            }} else if (url.includes('.mpd')) {{
+                return 'application/dash+xml';
+            }} else {{
+                return 'video/mp4';  // Default to mp4 if format is unknown
             }}
         }}
 
