@@ -115,7 +115,7 @@ def generate_html(file_name, videos, pdfs, others):
     <div id="noResults" class="no-results">No results found.</div>
 
     <div id="video-player">
-        <video id="engineer-babu-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
+        <video id="jai-bajrang-bali-player" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
             <p class="vjs-no-js">
                 To view this video please enable JavaScript, and consider upgrading to a web browser that
                 <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
@@ -124,7 +124,7 @@ def generate_html(file_name, videos, pdfs, others):
         <div class="download-button">
             <a id="download-link" href="#" download>Download Video</a>
         </div>
-        <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #007bff;">Engineer Babu Player</div>
+        <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #007bff;">Jai Bajrang Bali Player</div>
     </div>
 
     <div id="youtube-player">
@@ -164,7 +164,7 @@ def generate_html(file_name, videos, pdfs, others):
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        const player = videojs('𝐉𝐀𝐈 𝐁𝐀𝐉𝐑𝐀𝐍𝐆 𝐁𝐀𝐋𝐈 player', {{
+        const player = videojs('jai-bajrang-bali-player', {{
             controls: true,
             autoplay: false,
             preload: 'auto',
