@@ -6,7 +6,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 
 # Replace with your API ID, API Hash, and Bot Token
-API_ID = "7900743"
+API_ID = "27900743"
 API_HASH = "ebb06ea8d41420e60b29140dcee902fc"
 BOT_TOKEN = "7722329522:AAFBAZFjbnoQynejAs0c4NmGK6qRk3xNXZI"
 
