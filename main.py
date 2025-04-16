@@ -352,7 +352,7 @@ def write_name_urls_to_txt(name_urls, output_file):
             file.write(f"{name} : {url}\n")
 
 # Sudo command to add/remove sudo users
-@bot.on_message(filters.command("sudo"))
+@app.on_message(filters.command("sudo"))
 async def sudo_command(bot: Client, message: Message):
     user_id = message.chat.id
     if user_id != OWNER_ID:
@@ -388,7 +388,7 @@ async def sudo_command(bot: Client, message: Message):
         await message.reply_text(f"**Error:** {str(e)}")
 
 # List users command
-@bot.on_message(filters.command("userlist") & filters.user(SUDO_USERS))
+@app.on_message(filters.command("userlist") & filters.user(SUDO_USERS))
 async def list_users(client: Client, msg: Message):
     if SUDO_USERS:
         users_list = "\n".join([f"User ID : `{user_id}`" for user_id in SUDO_USERS])
@@ -398,7 +398,7 @@ async def list_users(client: Client, msg: Message):
 
 
 # Help command
-@bot.on_message(filters.command("help"))
+@app.on_message(filters.command("help"))
 async def help_command(client: Client, msg: Message):
     help_text = (
         "`/start` - Start the bot⚡\n\n"
@@ -411,7 +411,7 @@ async def help_command(client: Client, msg: Message):
     await msg.reply_text(help_text)
     
 # Upload command handler
-@bot.on_message(filters.command(["start"]))
+@app.on_message(filters.command(["start"]))
 async def upload(bot: Client, m: Message):
     if not is_authorized(m.chat.id):
         await m.reply_text("**🚫You are not authorized to use this bot.**")
