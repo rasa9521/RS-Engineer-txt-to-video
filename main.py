@@ -59,7 +59,6 @@ async def sudo_command(bot: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"**Error:** {str(e)}")
         
-
 # Telegram channel where files will be forwarded
 CHANNEL_USERNAME = "@mrkrsrawat"  # Replace with your channel username
 
