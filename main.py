@@ -5,10 +5,61 @@ from bs4 import BeautifulSoup
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
+
+# Define the owner's user ID
+OWNER_ID = 7804396225 # Replace with the actual owner's user ID
+
+# List of sudo users (initially empty or pre-populated)
+SUDO_USERS = [7804396225]
+
+AUTH_CHANNEL = -1002690129228
+
+# Function to check if a user is authorized
+def is_authorized(user_id: int) -> bool:
+    return user_id == OWNER_ID or user_id in SUDO_USERS or user_id == AUTH_CHANNEL
+    
 # Replace with your API ID, API Hash, and Bot Token
 API_ID = "27900743"
 API_HASH = "ebb06ea8d41420e60b29140dcee902fc"
 BOT_TOKEN = "7613918555:AAEXuAeg_ae5beQJqZydrKN2IzUgCmlTRU0"
+
+
+# Sudo command to add/remove sudo users
+@bot.on_message(filters.command("sudo"))
+async def sudo_command(bot: Client, message: Message):
+    user_id = message.chat.id
+    if user_id != OWNER_ID:
+        await message.reply_text("**🚫 You are not authorized to use this command.**")
+        return
+
+    try:
+        args = message.text.split(" ", 2)
+        if len(args) < 2:
+            await message.reply_text("**Usage:** `/sudo add <user_id>` or `/sudo remove <user_id>`")
+            return
+
+        action = args[1].lower()
+        target_user_id = int(args[2])
+
+        if action == "add":
+            if target_user_id not in SUDO_USERS:
+                SUDO_USERS.append(target_user_id)
+                await message.reply_text(f"**✅ User {target_user_id} added to sudo list.**")
+            else:
+                await message.reply_text(f"**⚠️ User {target_user_id} is already in the sudo list.**")
+        elif action == "remove":
+            if target_user_id == OWNER_ID:
+                await message.reply_text("**🚫 The owner cannot be removed from the sudo list.**")
+            elif target_user_id in SUDO_USERS:
+                SUDO_USERS.remove(target_user_id)
+                await message.reply_text(f"**✅ User {target_user_id} removed from sudo list.**")
+            else:
+                await message.reply_text(f"**⚠️ User {target_user_id} is not in the sudo list.**")
+        else:
+            await message.reply_text("**Usage:** `/sudo add <user_id>` or `/sudo remove <user_id>`")
+    except Exception as e:
+        await message.reply_text(f"**Error:** {str(e)}")
+        
 
 # Telegram channel where files will be forwarded
 CHANNEL_USERNAME = "@mrkrsrawat"  # Replace with your channel username
@@ -338,13 +389,39 @@ def write_name_urls_to_txt(name_urls, output_file):
         for name, url in name_urls:
             file.write(f"{name} : {url}\n")
 
-# Command handler for /start
-@app.on_message(filters.command("start"))
-async def start(client: Client, message: Message):
-    await message.reply_text("𝐖𝐞𝐥𝐜𝐨𝐦𝐞! 𝐔𝐬𝐞 /𝐭𝐱𝐭 𝐭𝐨 𝐮𝐩𝐥𝐨𝐚𝐝 𝐚 .𝐭𝐱𝐭 𝐟𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐢𝐧𝐠 𝐔𝐑𝐋𝐬.")
+
+# List users command
+@bot.on_message(filters.command("userlist") & filters.user(SUDO_USERS))
+async def list_users(client: Client, msg: Message):
+    if SUDO_USERS:
+        users_list = "\n".join([f"User ID : `{user_id}`" for user_id in SUDO_USERS])
+        await msg.reply_text(f"SUDO_USERS :\n{users_list}")
+    else:
+        await msg.reply_text("No sudo users.")
+
+
+# Help command
+@bot.on_message(filters.command("help"))
+async def help_command(client: Client, msg: Message):
+    help_text = (
+        "`/start` - Start the bot⚡\n\n"
+        "`/jaibajrangbali` - Download and upload files (sudo)🎬\n\n"
+        "`/sudo add` - Add user or group or channel (owner)🎊\n\n"
+        "`/sudo remove` - Remove user or group or channel (owner)❌\n\n"
+        "`/userlist` - List of sudo user or group or channel📜\n\n"
+       
+    )
+    await msg.reply_text(help_text)
+    
+# Upload command handler
+@bot.on_message(filters.command(["start"]))
+async def upload(bot: Client, m: Message):
+    if not is_authorized(m.chat.id):
+        await m.reply_text("**🚫You are not authorized to use this bot.**")
+        return
 
 # Command handler for /txt
-@app.on_message(filters.command("txt"))
+@app.on_message(filters.command("jaibajrangbali"))
 async def txt_command(client: Client, message: Message):
     await message.reply_text("Please upload a .txt file containing URLs.")
 
