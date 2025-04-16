@@ -22,42 +22,6 @@ def is_authorized(user_id: int) -> bool:
 API_ID = "27900743"
 API_HASH = "ebb06ea8d41420e60b29140dcee902fc"
 BOT_TOKEN = "8003649544:AAGoiThVN8KLJyKGsGf1BcfTsjDTrSmjFR8"
-
-# Sudo command to add/remove sudo users
-@bot.on_message(filters.command("sudo"))
-async def sudo_command(bot: Client, message: Message):
-    user_id = message.chat.id
-    if user_id != OWNER_ID:
-        await message.reply_text("**🚫 You are not authorized to use this command.**")
-        return
-
-    try:
-        args = message.text.split(" ", 2)
-        if len(args) < 2:
-            await message.reply_text("**Usage:** `/sudo add <user_id>` or `/sudo remove <user_id>`")
-            return
-
-        action = args[1].lower()
-        target_user_id = int(args[2])
-
-        if action == "add":
-            if target_user_id not in SUDO_USERS:
-                SUDO_USERS.append(target_user_id)
-                await message.reply_text(f"**✅ User {target_user_id} added to sudo list.**")
-            else:
-                await message.reply_text(f"**⚠️ User {target_user_id} is already in the sudo list.**")
-        elif action == "remove":
-            if target_user_id == OWNER_ID:
-                await message.reply_text("**🚫 The owner cannot be removed from the sudo list.**")
-            elif target_user_id in SUDO_USERS:
-                SUDO_USERS.remove(target_user_id)
-                await message.reply_text(f"**✅ User {target_user_id} removed from sudo list.**")
-            else:
-                await message.reply_text(f"**⚠️ User {target_user_id} is not in the sudo list.**")
-        else:
-            await message.reply_text("**Usage:** `/sudo add <user_id>` or `/sudo remove <user_id>`")
-    except Exception as e:
-        await message.reply_text(f"**Error:** {str(e)}")
         
 # Telegram channel where files will be forwarded
 CHANNEL_USERNAME = "@mrkrsrawat"  # Replace with your channel username
@@ -387,6 +351,41 @@ def write_name_urls_to_txt(name_urls, output_file):
         for name, url in name_urls:
             file.write(f"{name} : {url}\n")
 
+# Sudo command to add/remove sudo users
+@bot.on_message(filters.command("sudo"))
+async def sudo_command(bot: Client, message: Message):
+    user_id = message.chat.id
+    if user_id != OWNER_ID:
+        await message.reply_text("**🚫 You are not authorized to use this command.**")
+        return
+
+    try:
+        args = message.text.split(" ", 2)
+        if len(args) < 2:
+            await message.reply_text("**Usage:** `/sudo add <user_id>` or `/sudo remove <user_id>`")
+            return
+
+        action = args[1].lower()
+        target_user_id = int(args[2])
+
+        if action == "add":
+            if target_user_id not in SUDO_USERS:
+                SUDO_USERS.append(target_user_id)
+                await message.reply_text(f"**✅ User {target_user_id} added to sudo list.**")
+            else:
+                await message.reply_text(f"**⚠️ User {target_user_id} is already in the sudo list.**")
+        elif action == "remove":
+            if target_user_id == OWNER_ID:
+                await message.reply_text("**🚫 The owner cannot be removed from the sudo list.**")
+            elif target_user_id in SUDO_USERS:
+                SUDO_USERS.remove(target_user_id)
+                await message.reply_text(f"**✅ User {target_user_id} removed from sudo list.**")
+            else:
+                await message.reply_text(f"**⚠️ User {target_user_id} is not in the sudo list.**")
+        else:
+            await message.reply_text("**Usage:** `/sudo add <user_id>` or `/sudo remove <user_id>`")
+    except Exception as e:
+        await message.reply_text(f"**Error:** {str(e)}")
 
 # List users command
 @bot.on_message(filters.command("userlist") & filters.user(SUDO_USERS))
