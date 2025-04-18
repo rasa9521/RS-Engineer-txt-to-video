@@ -84,39 +84,150 @@ def generate_html(file_name, videos, pdfs, others):
     other_links = "".join(f'<a href="{url}" target="_blank">{name}</a>' for name, url in others)
 
     html_template = f"""
-<!DOCTYPE html>
+import os
+import re
+from bs4 import BeautifulSoup
+
+def txt_to_html(input_file, output_file, base_dir="."):
+    """
+    TXT फ़ाइल को HTML में बदलता है, जिसमें विषयवार वीडियो और PDF हों।
+    """
+    try:
+        with open(input_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found: {input_file}")
+        return
+
+    # विषय के आधार पर सामग्री को विभाजित करें
+    topics = re.split(r'#\s*(.+?)\n', content)
+    topics = [topic for topic in topics if topic.strip()]
+
+    if len(topics) % 2 != 0:
+        print("Error: Topics are not properly formatted in the TXT file.")
+        return
+
+    # HTML सामग्री बनाएँ
+    html_content = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{file_name_without_extension}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <title>Topic-wise Content</title>
     <style>
-        * {{ margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }}
-        body {{ background: #f5f7fa; text-align: center; }}
-        .header {{ background: linear-gradient(90deg, #007bff, #6610f2); color: white; padding: 15px; font-size: 24px; font-weight: bold; }}
-        .subheading {{ font-size: 18px; margin-top: 10px; color: #555; font-weight: bold; }}
-        .subheading a {{ background: linear-gradient(90deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; font-weight: bold; }}
-        .container {{ display: flex; justify-content: space-around; margin: 30px auto; width: 80%; }}
-        .tab {{ flex: 1; padding: 20px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; border-radius: 10px; font-size: 20px; font-weight: bold; }}
-        .tab:hover {{ background: #007bff; color: white; }}
-        .content {{ display: none; margin-top: 20px; }}
-        .active {{ display: block; }}
-        .footer {{ margin-top: 30px; font-size: 18px; font-weight: bold; padding: 15px; background: #1c1c1c; color: white; border-radius: 10px; }}
-        .footer a {{ color: #ffeb3b; text-decoration: none; font-weight: bold; }}
-        .video-list, .pdf-list, .other-list {{ text-align: left; max-width: 600px; margin: auto; }}
-        .video-list a, .pdf-list a, .other-list a {{ display: block; padding: 10px; background: #fff; margin: 5px 0; border-radius: 5px; text-decoration: none; color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
-        .video-list a:hover, .pdf-list a:hover, .other-list a:hover {{ background: #007bff; color: white; }}
-        .search-bar {{ margin: 20px auto; width: 80%; max-width: 600px; }}
-        .search-bar input {{ width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 5px; font-size: 16px; }}
-        .no-results {{ color: red; font-weight: bold; margin-top: 20px; display: none; }}
-        #video-player {{ display: none; margin: 20px auto; width: 80%; max-width: 800px; }}
-        #youtube-player {{ display: none; margin: 20px auto; width: 80%; max-width: 800px; }}
-        .download-button {{ margin-top: 10px; text-align: center; }}
-        .download-button a {{ background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }}
-        .download-button a:hover {{ background: #0056b3; }}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .topic {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .topic-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0056b3;
+        }
+
+        .video-player-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .link {
+            display: block;
+            margin-bottom: 5px;
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .link:hover {
+            color: #0056b3;
+        }
+
+        .error {
+            color: #dc3545;
+            font-style: italic;
+        }
     </style>
+</head>
+<body>
+    <h1>Topic-wise Content</h1>
+"""
+
+    for i in range(0, len(topics), 2):
+        topic_title = topics[i]
+        topic_content = topics[i+1]
+
+        html_content += f"""
+    <div class="topic">
+        <div class="topic-title">{topic_title}</div>
+"""
+
+        # वीडियो लिंक निकालें
+        video_links = re.findall(r'\[VIDEO:(.*?)\]', topic_content)
+        for video_link in video_links:
+            html_content += f"""
+        <div class="video-player-container">
+            <iframe class="video-player" src="{video_link}" frameborder="0" allowfullscreen></iframe>
+        </div>
+"""
+
+        # अन्य लिंक निकालें
+        links = re.findall(r'(https?://\S+)', topic_content)
+        for link in links:
+            html_content += f"""
+            <a class="link" href="{link}">{link}</a>
+"""
+
+        html_content += """
+    </div>
+"""
+
+    html_content += """
+</body>
+</html>
+"""
+
+    # फ़ाइल में HTML सामग्री लिखें
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        print(f"Successfully converted {input_file} to {output_file}")
+    except Exception as e:
+        print(f"Error writing to file: {e}")
+
+# उदाहरण उपयोग
+input_file = 'input.txt'
+output_file = 'output.html'
+txt_to_html(input_file, output_file)
 </head>
 <body>
     <div class="header">{file_name_without_extension}</div>
@@ -350,65 +461,6 @@ def write_name_urls_to_txt(name_urls, output_file):
     with open(output_file, 'w', encoding='utf-8') as file:
         for name, url in name_urls:
             file.write(f"{name} : {url}\n")
-
-# Sudo command to add/remove sudo users
-@app.on_message(filters.command("sudo"))
-async def sudo_command(bot: Client, message: Message):
-    user_id = message.chat.id
-    if user_id != OWNER_ID:
-        await message.reply_text("**🚫 You are not authorized to use this command.**")
-        return
-
-    try:
-        args = message.text.split(" ", 2)
-        if len(args) < 2:
-            await message.reply_text("**Usage:** `/sudo add <user_id>` or `/sudo remove <user_id>`")
-            return
-
-        action = args[1].lower()
-        target_user_id = int(args[2])
-
-        if action == "add":
-            if target_user_id not in SUDO_USERS:
-                SUDO_USERS.append(target_user_id)
-                await message.reply_text(f"**✅ User {target_user_id} added to sudo list.**")
-            else:
-                await message.reply_text(f"**⚠️ User {target_user_id} is already in the sudo list.**")
-        elif action == "remove":
-            if target_user_id == OWNER_ID:
-                await message.reply_text("**🚫 The owner cannot be removed from the sudo list.**")
-            elif target_user_id in SUDO_USERS:
-                SUDO_USERS.remove(target_user_id)
-                await message.reply_text(f"**✅ User {target_user_id} removed from sudo list.**")
-            else:
-                await message.reply_text(f"**⚠️ User {target_user_id} is not in the sudo list.**")
-        else:
-            await message.reply_text("**Usage:** `/sudo add <user_id>` or `/sudo remove <user_id>`")
-    except Exception as e:
-        await message.reply_text(f"**Error:** {str(e)}")
-
-# List users command
-@app.on_message(filters.command("userlist") & filters.user(SUDO_USERS))
-async def list_users(client: Client, msg: Message):
-    if SUDO_USERS:
-        users_list = "\n".join([f"User ID : `{user_id}`" for user_id in SUDO_USERS])
-        await msg.reply_text(f"SUDO_USERS :\n{users_list}")
-    else:
-        await msg.reply_text("No sudo users.")
-
-
-# Help command
-@app.on_message(filters.command("help"))
-async def help_command(client: Client, msg: Message):
-    help_text = (
-        "`/start` - Start the bot⚡\n\n"
-        "`/jaibajrangbali` - Download and upload files (sudo)🎬\n\n"
-        "`/sudo add` - Add user or group or channel (owner)🎊\n\n"
-        "`/sudo remove` - Remove user or group or channel (owner)❌\n\n"
-        "`/userlist` - List of sudo user or group or channel📜\n\n"
-       
-    )
-    await msg.reply_text(help_text)
     
 # Upload command handler
 @app.on_message(filters.command(["start"]))
